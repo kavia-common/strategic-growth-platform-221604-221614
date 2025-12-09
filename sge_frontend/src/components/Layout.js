@@ -53,12 +53,13 @@ const Layout = () => {
                   to={item.path}
                   className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
                   aria-current={isActive ? 'page' : undefined}
+                  tabIndex={0}
                 >
+                  <div className="sidebar-nav-item-indicator-bar" aria-hidden="true" />
                   <div className="sidebar-nav-item-icon">
-                    <Icon size={20} strokeWidth={2} />
+                    <Icon size={20} strokeWidth={2.5} />
                   </div>
                   <span className="sidebar-nav-item-label">{item.label}</span>
-                  {isActive && <div className="sidebar-nav-item-indicator" />}
                 </Link>
               );
             })}
