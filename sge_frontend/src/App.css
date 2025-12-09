@@ -493,7 +493,7 @@ body {
   animation-delay: 2s;
 }
 
-.bg-grid-white\/\[0\.05\] {
+.bg-grid-pattern {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -642,6 +642,7 @@ body {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   padding: var(--spacing-lg);
+  transition: box-shadow 0.3s ease;
 }
 
 /* Sidebar Specifics */
@@ -772,8 +773,8 @@ body {
 .bg-blue-600 { background-color: #2563EB; }
 .bg-blue-900 { background-color: #1e3a8a; }
 .border-blue-100 { border-color: #dbeafe; }
-.hover\:text-blue-700:hover { color: #1d4ed8; }
-.hover\:bg-blue-50:hover { background-color: #eff6ff; }
+.hover-text-blue-700:hover { color: #1d4ed8; }
+.hover-bg-blue-50:hover { background-color: #eff6ff; }
 
 .text-indigo-600 { color: #4F46E5; }
 .text-indigo-700 { color: #4338CA; }
@@ -821,23 +822,25 @@ body {
 .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
 
 @media (min-width: 640px) {
-  .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .sm\:pt-24 { padding-top: 6rem; }
-  .sm\:pb-32 { padding-bottom: 8rem; }
-  .sm\:text-6xl { font-size: 3.75rem; }
-  .sm\:flex-row { flex-direction: row; }
-  .sm\:p-4 { padding: 1rem; }
+  .sm-px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .sm-pt-24 { padding-top: 6rem; }
+  .sm-pb-32 { padding-bottom: 8rem; }
+  .sm-text-6xl { font-size: 3.75rem; }
+  .sm-flex-row { flex-direction: row; }
+  .sm-p-4 { padding: 1rem; }
+  .sm-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 768px) {
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .md\:flex-row { flex-direction: row; }
+  .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md-flex-row { flex-direction: row; }
 }
 
 @media (min-width: 1024px) {
-  .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
-  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lg-px-8 { padding-left: 2rem; padding-right: 2rem; }
+  .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lg-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* Helpers */
@@ -851,7 +854,7 @@ body {
 .min-h-screen { min-height: 100vh; }
 .pt-16 { padding-top: 4rem; }
 .pb-20 { padding-bottom: 5rem; }
-.py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+.py-2-5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
 .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
 .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
 .py-20 { padding-top: 5rem; padding-bottom: 5rem; }
@@ -882,15 +885,17 @@ body {
 .z-10 { z-index: 10; }
 .overflow-hidden { overflow: hidden; }
 .overflow-y-auto { overflow-y: auto; }
+.overflow-x-auto { overflow-x: auto; }
 .aspect-video { aspect-ratio: 16 / 9; }
-.hover\:shadow-lg:hover { box-shadow: var(--shadow-lg); }
+.hover-shadow-lg:hover { box-shadow: var(--shadow-lg); }
+.hover-shadow-md:hover { box-shadow: var(--shadow-md); }
 .transition-shadow { transition-property: box-shadow; transition-duration: 300ms; }
 .transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-duration: 200ms; }
 .transition-opacity { transition-property: opacity; transition-duration: 200ms; }
-.hover\:opacity-90:hover { opacity: 0.9; }
+.hover-opacity-90:hover { opacity: 0.9; }
 
 .transform { transform: var(--tw-transform); }
-.-translate-y-1\/2 { --tw-translate-y: -50%; transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y)); }
+.translate-y-half { transform: translateY(-50%); }
 .w-8 { width: 2rem; }
 .h-8 { height: 2rem; }
 .w-12 { width: 3rem; }
@@ -901,3 +906,6 @@ body {
 .animate-spin { animation: spin 1s linear infinite; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cursor-pointer { cursor: pointer; }
+.inline-flex { display: inline-flex; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.flex-wrap { flex-wrap: wrap; }

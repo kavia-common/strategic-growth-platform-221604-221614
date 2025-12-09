@@ -220,7 +220,7 @@ const Landing = () => {
 
         {/* CTA Section */}
         <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/[0.05] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-grid-pattern pointer-events-none"></div>
           <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
             <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Transform Your Business?</h2>
             <p className="text-blue-100 text-xl mb-10 leading-relaxed">
