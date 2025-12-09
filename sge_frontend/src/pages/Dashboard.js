@@ -5,8 +5,11 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, Users, DollarSign, Activity, Target, 
-  Zap, Heart, TrendingDown, Calendar, Filter
+  Zap, Heart, TrendingDown, Calendar, Filter,
+  Download, Eye, MoreVertical, ChevronRight, Search,
+  Bell, Settings, ChevronDown
 } from 'lucide-react';
+import classNames from 'classnames';
 
 // ============================================
 // MOCK DATA GENERATORS
@@ -41,15 +44,15 @@ const generatePlanDistribution = () => [
 
 // Generate top accounts by engagement
 const generateTopAccounts = () => [
-  { name: 'Acme Corp', engagement: 95 },
-  { name: 'TechStart Inc', engagement: 88 },
-  { name: 'Global Solutions', engagement: 82 },
-  { name: 'InnovateCo', engagement: 78 },
-  { name: 'DataDriven LLC', engagement: 74 },
-  { name: 'CloudFirst', engagement: 68 }
+  { name: 'Acme Corp', engagement: 95, growth: '+12%', plan: 'Enterprise' },
+  { name: 'TechStart Inc', engagement: 88, growth: '+8%', plan: 'Professional' },
+  { name: 'Global Solutions', engagement: 82, growth: '+5%', plan: 'Enterprise' },
+  { name: 'InnovateCo', engagement: 78, growth: '+15%', plan: 'Professional' },
+  { name: 'DataDriven LLC', engagement: 74, growth: '+3%', plan: 'Starter' },
+  { name: 'CloudFirst', engagement: 68, growth: '-2%', plan: 'Professional' }
 ];
 
-// Generate cohort retention data (approximate via stacked area)
+// Generate cohort retention data
 const generateCohortData = () => {
   const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'];
   return weeks.map((week, idx) => ({
@@ -61,95 +64,39 @@ const generateCohortData = () => {
   }));
 };
 
-// Generate activity heatmap data (last 12 months, day-by-day)
-const generateHeatmapData = () => {
-  const data = [];
-  const now = new Date();
-  for (let i = 365; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const dayOfWeek = date.getDay();
-    const week = Math.floor(i / 7);
-    data.push({
-      date: date.toISOString().split('T')[0],
-      day: dayOfWeek,
-      week,
-      count: Math.floor(Math.random() * 20)
-    });
-  }
-  return data;
-};
-
 // ============================================
 // COMPONENTS
 // ============================================
 
-const StatCard = ({ title, value, change, icon: Icon, color, subtitle }) => (
-  <div className="card flex items-start justify-between hover:shadow-md transition-shadow">
-    <div className="flex-1">
-      <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-      <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
-      {subtitle && <p className="text-xs text-gray-400 mb-2">{subtitle}</p>}
-      <p className={`text-sm font-medium flex items-center gap-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-        {change >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-        {change > 0 ? '+' : ''}{change}% vs last month
-      </p>
-    </div>
-    <div className={`p-3 rounded-lg bg-${color}-50 flex-shrink-0`}>
-      <Icon size={24} color={color === 'blue' ? '#2563EB' : (color === 'amber' ? '#F59E0B' : (color === 'green' ? '#10B981' : '#EF4444'))} />
-    </div>
-  </div>
-);
-
-// Activity Heatmap Component (GitHub-style)
-const ActivityHeatmap = ({ data }) => {
-  const getColor = (count) => {
-    if (count === 0) return '#F3F4F6';
-    if (count < 5) return '#DBEAFE';
-    if (count < 10) return '#93C5FD';
-    if (count < 15) return '#3B82F6';
-    return '#1E40AF';
+const StatCard = ({ title, value, change, icon: Icon, color, subtitle }) => {
+  const colorClasses = {
+    blue: 'bg-blue-50 text-blue-600',
+    amber: 'bg-amber-50 text-amber-600',
+    green: 'bg-green-50 text-green-600',
+    red: 'bg-red-50 text-red-600',
+    purple: 'bg-purple-50 text-purple-600'
   };
 
-  // Group by week
-  const weeks = [];
-  for (let w = 0; w <= 52; w++) {
-    weeks.push(data.filter(d => d.week === w));
-  }
-
   return (
-    <div className="card">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Organization Activity (Last 12 Months)</h3>
-      <div className="overflow-x-auto">
-        <div className="inline-flex gap-1">
-          {weeks.slice(-52).map((week, wIdx) => (
-            <div key={wIdx} className="flex flex-col gap-1">
-              {[0, 1, 2, 3, 4, 5, 6].map(day => {
-                const cell = week.find(d => d.day === day);
-                const count = cell?.count || 0;
-                return (
-                  <div
-                    key={day}
-                    className="w-3 h-3 rounded-sm"
-                    style={{ backgroundColor: getColor(count) }}
-                    title={`${cell?.date || ''}: ${count} activities`}
-                  />
-                );
-              })}
-            </div>
-          ))}
+    <div className="dashboard-card">
+      <div className="flex items-start justify-between mb-4">
+        <div className={`metric-icon-container ${colorClasses[color]}`}>
+          <Icon className="w-5 h-5" />
         </div>
+        <button className="p-1 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+          <MoreVertical className="w-4 h-4 text-gray-400" />
+        </button>
       </div>
-      <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
-        <span>Less</span>
-        <div className="flex gap-1">
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#F3F4F6' }} />
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#DBEAFE' }} />
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#93C5FD' }} />
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#3B82F6' }} />
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#1E40AF' }} />
+      <div className="space-y-1">
+        <p className="metric-label">{title}</p>
+        <div className="flex items-end justify-between">
+          <h3 className="metric-value">{value}</h3>
+          <div className={classNames('metric-change', change >= 0 ? 'positive' : 'negative')}>
+            {change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            <span>{change > 0 ? '+' : ''}{change}%</span>
+          </div>
         </div>
-        <span>More</span>
+        {subtitle && <p className="text-sm text-gray-500 mt-2">{subtitle}</p>}
       </div>
     </div>
   );
@@ -159,23 +106,30 @@ const ActivityHeatmap = ({ data }) => {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload) return null;
   return (
-    <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-      <p className="font-semibold text-gray-900 mb-1">{label}</p>
+    <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 min-w-[160px]">
+      <p className="font-semibold text-gray-900 mb-2">{label}</p>
       {payload.map((entry, idx) => (
-        <p key={idx} className="text-sm" style={{ color: entry.color }}>
-          {entry.name}: {typeof entry.value === 'number' ? entry.value.toFixed(0) : entry.value}
-        </p>
+        <div key={idx} className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-2 h-2 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm text-gray-600">{entry.name}</span>
+          </div>
+          <span className="text-sm font-medium text-gray-900">
+            {typeof entry.value === 'number' ? entry.value.toFixed(0) : entry.value}
+          </span>
+        </div>
       ))}
     </div>
   );
 };
 
-// PUBLIC_INTERFACE
-/**
- * Comprehensive Analytics Dashboard
- * Features: 8 KPI cards, activity heatmap, multi-series charts, stacked bar,
- * donut chart, horizontal bar, cohort retention, and filters
- */
+// ============================================
+// MAIN DASHBOARD COMPONENT
+// ============================================
+
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState('12m');
   const [segment, setSegment] = useState('all');
@@ -187,7 +141,6 @@ const Dashboard = () => {
   const planDistribution = useMemo(() => generatePlanDistribution(), []);
   const topAccounts = useMemo(() => generateTopAccounts(), []);
   const cohortData = useMemo(() => generateCohortData(), []);
-  const heatmapData = useMemo(() => generateHeatmapData(), []);
 
   // Calculate moving average for growth data
   const growthWithMA = useMemo(() => {
@@ -199,233 +152,389 @@ const Dashboard = () => {
     });
   }, [growthData]);
 
-  // KPI values (mock - would filter based on dateRange/segment/plan in real app)
-  const kpis = {
-    mrr: { value: '$45,231', change: 12.3, subtitle: 'Monthly Recurring Revenue' },
-    arr: { value: '$542,772', change: 15.8, subtitle: 'Annual Recurring Revenue' },
-    activeUsers: { value: '2,847', change: 8.4, subtitle: 'Active this month' },
-    dauMau: { value: '42.5%', change: 3.2, subtitle: 'Daily/Monthly Active Ratio' },
-    conversion: { value: '18.6%', change: -1.5, subtitle: 'Trial to Paid' },
-    churn: { value: '3.2%', change: -0.8, subtitle: 'Monthly Churn Rate' },
-    nps: { value: '58', change: 5.0, subtitle: 'Net Promoter Score' },
-    ltvCac: { value: '4.2x', change: 6.5, subtitle: 'Lifetime Value / CAC' }
-  };
+  // KPI values
+  const kpis = [
+    { title: 'MRR', value: '$45,231', change: 12.3, subtitle: 'Monthly Recurring Revenue', icon: DollarSign, color: 'blue' },
+    { title: 'ARR', value: '$542,772', change: 15.8, subtitle: 'Annual Recurring Revenue', icon: TrendingUp, color: 'blue' },
+    { title: 'Active Users', value: '2,847', change: 8.4, subtitle: 'Active this month', icon: Users, color: 'amber' },
+    { title: 'DAU/MAU', value: '42.5%', change: 3.2, subtitle: 'Daily/Monthly Active Ratio', icon: Activity, color: 'green' },
+    { title: 'Conversion', value: '18.6%', change: -1.5, subtitle: 'Trial to Paid', icon: Target, color: 'green' },
+    { title: 'Churn', value: '3.2%', change: -0.8, subtitle: 'Monthly Churn Rate', icon: TrendingDown, color: 'red' },
+    { title: 'NPS', value: '58', change: 5.0, subtitle: 'Net Promoter Score', icon: Heart, color: 'amber' },
+    { title: 'LTV/CAC', value: '4.2x', change: 6.5, subtitle: 'Lifetime Value / CAC', icon: Zap, color: 'purple' }
+  ];
 
-  // Filter UI
+  // Filter Bar Component
   const FilterBar = () => (
-    <div className="card flex flex-wrap items-center gap-4 mb-6">
-      <Filter size={20} className="text-gray-400" />
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700">Date Range:</label>
-        <select 
-          value={dateRange} 
-          onChange={(e) => setDateRange(e.target.value)}
-          className="input py-2 px-3 text-sm"
-        >
-          <option value="1m">Last Month</option>
-          <option value="3m">Last 3 Months</option>
-          <option value="6m">Last 6 Months</option>
-          <option value="12m">Last 12 Months</option>
-        </select>
+    <div className="dashboard-card flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-blue-50 rounded-lg">
+          <Filter className="w-5 h-5 text-blue-600" />
+        </div>
+        <span className="font-medium text-gray-900">Filters</span>
       </div>
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700">Segment:</label>
-        <select 
-          value={segment} 
-          onChange={(e) => setSegment(e.target.value)}
-          className="input py-2 px-3 text-sm"
-        >
-          <option value="all">All Segments</option>
-          <option value="enterprise">Enterprise</option>
-          <option value="mid-market">Mid-Market</option>
-          <option value="smb">SMB</option>
-          <option value="startup">Startup</option>
-        </select>
+      
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <select 
+            value={dateRange} 
+            onChange={(e) => setDateRange(e.target.value)}
+            className="chart-filter-dropdown"
+          >
+            <option value="1m">Last Month</option>
+            <option value="3m">Last 3 Months</option>
+            <option value="6m">Last 6 Months</option>
+            <option value="12m">Last 12 Months</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <select 
+            value={segment} 
+            onChange={(e) => setSegment(e.target.value)}
+            className="chart-filter-dropdown"
+          >
+            <option value="all">All Segments</option>
+            <option value="enterprise">Enterprise</option>
+            <option value="mid-market">Mid-Market</option>
+            <option value="smb">SMB</option>
+            <option value="startup">Startup</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <select 
+            value={plan} 
+            onChange={(e) => setPlan(e.target.value)}
+            className="chart-filter-dropdown"
+          >
+            <option value="all">All Plans</option>
+            <option value="enterprise">Enterprise</option>
+            <option value="professional">Professional</option>
+            <option value="starter">Starter</option>
+            <option value="trial">Trial</option>
+          </select>
+        </div>
       </div>
+
+      <div className="flex-1"></div>
+
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700">Plan:</label>
-        <select 
-          value={plan} 
-          onChange={(e) => setPlan(e.target.value)}
-          className="input py-2 px-3 text-sm"
-        >
-          <option value="all">All Plans</option>
-          <option value="enterprise">Enterprise</option>
-          <option value="professional">Professional</option>
-          <option value="starter">Starter</option>
-          <option value="trial">Trial</option>
-        </select>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+          <Eye className="w-4 h-4" />
+          Preview Report
+        </button>
       </div>
     </div>
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-500 mt-1">Comprehensive insights into your organization's performance</p>
+    <div className="dashboard-wrapper">
+      {/* Top Navigation */}
+      <header className="dashboard-header">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Analytics Dashboard</h1>
+                <p className="text-sm text-gray-500">Comprehensive insights and performance metrics</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search metrics..."
+                className="pl-10 pr-4 py-2.5 w-64 bg-gray-100 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
+            </div>
+            
+            <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+              <Bell className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            </button>
+            
+            <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+              <Settings className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Calendar size={16} />
-          <span>Updated 5 min ago</span>
-        </div>
-      </div>
+      </header>
 
-      {/* Filters */}
-      <FilterBar />
+      {/* Main Content */}
+      <main className="dashboard-main">
+        <div className="space-y-6">
+          {/* Filters */}
+          <FilterBar />
 
-      {/* KPI Grid - 8 Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="MRR" value={kpis.mrr.value} change={kpis.mrr.change} icon={DollarSign} color="blue" subtitle={kpis.mrr.subtitle} />
-        <StatCard title="ARR" value={kpis.arr.value} change={kpis.arr.change} icon={TrendingUp} color="blue" subtitle={kpis.arr.subtitle} />
-        <StatCard title="Active Users" value={kpis.activeUsers.value} change={kpis.activeUsers.change} icon={Users} color="amber" subtitle={kpis.activeUsers.subtitle} />
-        <StatCard title="DAU/MAU" value={kpis.dauMau.value} change={kpis.dauMau.change} icon={Activity} color="green" subtitle={kpis.dauMau.subtitle} />
-        <StatCard title="Conversion" value={kpis.conversion.value} change={kpis.conversion.change} icon={Target} color="green" subtitle={kpis.conversion.subtitle} />
-        <StatCard title="Churn" value={kpis.churn.value} change={kpis.churn.change} icon={TrendingDown} color="red" subtitle={kpis.churn.subtitle} />
-        <StatCard title="NPS" value={kpis.nps.value} change={kpis.nps.change} icon={Heart} color="amber" subtitle={kpis.nps.subtitle} />
-        <StatCard title="LTV/CAC" value={kpis.ltvCac.value} change={kpis.ltvCac.change} icon={Zap} color="blue" subtitle={kpis.ltvCac.subtitle} />
-      </div>
+          {/* KPI Grid - 8 Cards */}
+          <div className="dashboard-metrics-grid">
+            {kpis.map((kpi, idx) => (
+              <StatCard key={idx} {...kpi} />
+            ))}
+          </div>
 
-      {/* Activity Heatmap */}
-      <ActivityHeatmap data={heatmapData} />
+          {/* Revenue & Users Growth with Moving Average */}
+          <div className="dashboard-charts-grid">
+            {/* MRR Growth Card */}
+            <div className="dashboard-card">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">MRR Growth & Trend</h3>
+                  <p className="text-sm text-gray-500">Monthly recurring revenue with moving average</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <Eye className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <Download className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={growthWithMA}>
+                    <defs>
+                      <linearGradient id="colorMRR" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                    <YAxis stroke="#6B7280" fontSize={12} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Area type="monotone" dataKey="mrr" stroke="#2563EB" fill="url(#colorMRR)" strokeWidth={2} name="MRR" />
+                    <Line type="monotone" dataKey="mrrMA" stroke="#F59E0B" strokeWidth={2} strokeDasharray="5 5" name="3-Month MA" dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-      {/* Revenue & Users Growth with Moving Average */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">MRR Growth & Trend</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={growthWithMA}>
-              <defs>
-                <linearGradient id="colorMRR" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="month" stroke="#6B7280" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Area type="monotone" dataKey="mrr" stroke="#2563EB" fill="url(#colorMRR)" strokeWidth={2} name="MRR" />
-              <Line type="monotone" dataKey="mrrMA" stroke="#F59E0B" strokeWidth={2} strokeDasharray="5 5" name="3-Month MA" dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+            {/* User Growth Card */}
+            <div className="dashboard-card">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">User Growth & Trend</h3>
+                  <p className="text-sm text-gray-500">Active users with moving average trend</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    View details →
+                  </button>
+                </div>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={growthWithMA}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                    <YAxis stroke="#6B7280" fontSize={12} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Line type="monotone" dataKey="users" stroke="#10B981" strokeWidth={3} name="Active Users" dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="usersMA" stroke="#F59E0B" strokeWidth={2} strokeDasharray="5 5" name="3-Month MA" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
 
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth & Trend</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={growthWithMA}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="month" stroke="#6B7280" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line type="monotone" dataKey="users" stroke="#10B981" strokeWidth={3} name="Active Users" dot={{ r: 4 }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="usersMA" stroke="#F59E0B" strokeWidth={2} strokeDasharray="5 5" name="3-Month MA" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+          {/* Feature Usage by Segment */}
+          <div className="dashboard-card">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Feature Usage by Segment</h3>
+                <p className="text-sm text-gray-500">Usage distribution across different customer segments</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">3,120</div>
+                  <div className="text-sm text-gray-500">Total sessions</div>
+                </div>
+              </div>
+            </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={featureUsage} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                  <XAxis type="number" stroke="#6B7280" fontSize={12} />
+                  <YAxis dataKey="segment" type="category" stroke="#6B7280" fontSize={12} width={100} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  <Bar dataKey="analytics" stackId="a" fill="#2563EB" name="Analytics" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="chat" stackId="a" fill="#10B981" name="AI Chat" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="reports" stackId="a" fill="#F59E0B" name="Reports" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="workflows" stackId="a" fill="#8B5CF6" name="Workflows" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
-      {/* Feature Usage by Segment (Stacked Bar) */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Feature Usage by Segment</h3>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={featureUsage} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            <XAxis type="number" stroke="#6B7280" style={{ fontSize: '12px' }} />
-            <YAxis dataKey="segment" type="category" stroke="#6B7280" style={{ fontSize: '12px' }} width={100} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Bar dataKey="analytics" stackId="a" fill="#2563EB" name="Analytics" />
-            <Bar dataKey="chat" stackId="a" fill="#10B981" name="AI Chat" />
-            <Bar dataKey="reports" stackId="a" fill="#F59E0B" name="Reports" />
-            <Bar dataKey="workflows" stackId="a" fill="#8B5CF6" name="Workflows" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Plan Distribution (Donut) & Top Accounts (Horizontal Bar) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Plan Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={planDistribution}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={2}
-                dataKey="value"
-                label={(entry) => `${entry.name}: ${entry.value}%`}
-              >
-                {planDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+          {/* Plan Distribution & Top Accounts */}
+          <div className="dashboard-bottom-grid">
+            {/* Plan Distribution */}
+            <div className="dashboard-card">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Plan Distribution</h3>
+                  <p className="text-sm text-gray-500">Customer base by subscription plan</p>
+                </div>
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Heart className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={planDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {planDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {planDistribution.map((plan, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: plan.color }}></div>
+                      <span className="text-sm text-gray-700">{plan.name}</span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">{plan.value}%</span>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="text-center mt-4">
-            <p className="text-2xl font-bold text-gray-900">100%</p>
-            <p className="text-sm text-gray-500">Total Accounts</p>
+              </div>
+            </div>
+
+            {/* Top Accounts */}
+            <div className="dashboard-card">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Top Accounts by Engagement</h3>
+                  <p className="text-sm text-gray-500">Highest engagement scores this month</p>
+                </div>
+                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  See all →
+                </button>
+              </div>
+              <div className="space-y-4">
+                {topAccounts.map((account, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center">
+                        <span className="font-bold text-blue-600">{account.name.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">{account.name}</h4>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">{account.plan}</span>
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full">
+                            {account.growth}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">{account.engagement}%</div>
+                      <div className="text-xs text-gray-500">Engagement</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Cohort Retention */}
+          <div className="dashboard-card">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Cohort Retention Analysis</h3>
+                <p className="text-sm text-gray-500">User retention across different cohorts over time</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Real-time data</span>
+              </div>
+            </div>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={cohortData}>
+                  <defs>
+                    <linearGradient id="cohort1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0.2}/>
+                    </linearGradient>
+                    <linearGradient id="cohort2" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
+                    </linearGradient>
+                    <linearGradient id="cohort3" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.2}/>
+                    </linearGradient>
+                    <linearGradient id="cohort4" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.2}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="week" stroke="#6B7280" fontSize={12} />
+                  <YAxis stroke="#6B7280" fontSize={12} domain={[0, 100]} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  <Area type="monotone" dataKey="cohort1" stackId="1" stroke="#2563EB" fill="url(#cohort1)" name="Jan Cohort" />
+                  <Area type="monotone" dataKey="cohort2" stackId="1" stroke="#10B981" fill="url(#cohort2)" name="Feb Cohort" />
+                  <Area type="monotone" dataKey="cohort3" stackId="1" stroke="#F59E0B" fill="url(#cohort3)" name="Mar Cohort" />
+                  <Area type="monotone" dataKey="cohort4" stackId="1" stroke="#8B5CF6" fill="url(#cohort4)" name="Apr Cohort" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Accounts by Engagement</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topAccounts} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} stroke="#6B7280" style={{ fontSize: '12px' }} />
-              <YAxis dataKey="name" type="category" stroke="#6B7280" style={{ fontSize: '12px' }} width={120} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
-              <Bar dataKey="engagement" fill="#2563EB" radius={[0, 4, 4, 0]} name="Engagement %" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Cohort Retention (Stacked Area approximation) */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Cohort Retention Analysis</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={cohortData}>
-            <defs>
-              <linearGradient id="cohort1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563EB" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#2563EB" stopOpacity={0.2}/>
-              </linearGradient>
-              <linearGradient id="cohort2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
-              </linearGradient>
-              <linearGradient id="cohort3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.2}/>
-              </linearGradient>
-              <linearGradient id="cohort4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.2}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            <XAxis dataKey="week" stroke="#6B7280" style={{ fontSize: '12px' }} />
-            <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} domain={[0, 100]} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Area type="monotone" dataKey="cohort1" stackId="1" stroke="#2563EB" fill="url(#cohort1)" name="Jan Cohort" />
-            <Area type="monotone" dataKey="cohort2" stackId="1" stroke="#10B981" fill="url(#cohort2)" name="Feb Cohort" />
-            <Area type="monotone" dataKey="cohort3" stackId="1" stroke="#F59E0B" fill="url(#cohort3)" name="Mar Cohort" />
-            <Area type="monotone" dataKey="cohort4" stackId="1" stroke="#8B5CF6" fill="url(#cohort4)" name="Apr Cohort" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+        {/* Footer */}
+        <footer className="mt-8 p-6 border-t border-gray-200/50 bg-white">
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center gap-6">
+              <span>© 2024 Analytics Dashboard</span>
+              <span>•</span>
+              <span>v2.4.1</span>
+              <span>•</span>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>All systems operational</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <button className="hover:text-gray-700 transition-colors">Privacy</button>
+              <button className="hover:text-gray-700 transition-colors">Terms</button>
+              <button className="hover:text-gray-700 transition-colors">Support</button>
+            </div>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 };
