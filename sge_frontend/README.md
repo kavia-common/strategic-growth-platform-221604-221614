@@ -17,8 +17,9 @@ Create a .env file in this folder (you can copy .env.example) and set:
 - REACT_APP_SUPABASE_URL
 - REACT_APP_SUPABASE_ANON_KEY
 - REACT_APP_API_URL
+- REACT_APP_SITE_URL (optional but recommended for email redirect flows)
 
-Supabase client is initialized at src/lib/supabase.js and is used by AuthContext, Login, Signup and request interceptors.
+Supabase client is initialized at src/lib/supabase.js and is used by AuthContext, Login, Signup and request interceptors. If you see errors about \"Cannot resolve '../lib/supabase'\", ensure the file exists at src/lib/supabase.js and that the env variables above are set.
 
 In the project directory, you can run:
 
