@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Lock, Mail, Loader, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowLeft, Sparkles } from 'lucide-react';
 
 // PUBLIC_INTERFACE
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -32,70 +34,161 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="absolute top-6 left-6">
-        <Link to="/" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors no-underline">
-            <ArrowLeft size={20} /> Back to Home
+    <div className="login-container">
+      {/* Back to Home Link - Mobile */}
+      <div className="login-back-link">
+        <Link to="/" className="login-back-btn">
+          <ArrowLeft size={18} />
+          <span>Back to Home</span>
         </Link>
       </div>
 
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-xl border border-gray-100">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-500">Sign in to SGE Platform</p>
+      <div className="login-wrapper">
+        {/* Left Panel - Brand/Illustration (Desktop Only) */}
+        <div className="login-brand-panel">
+          <div className="login-brand-content">
+            <div className="login-brand-header">
+              <div className="login-brand-logo">
+                <span className="login-logo-icon">
+                  <Sparkles size={28} />
+                </span>
+                <span className="login-logo-text">SGE</span>
+              </div>
+              <h1 className="login-brand-title">Strategic Growth Engine</h1>
+              <p className="login-brand-subtitle">
+                Empowering organizations with AI-driven insights and intelligent collaboration
+              </p>
+            </div>
+            
+            <div className="login-illustration">
+              <div className="login-illustration-circle login-circle-1"></div>
+              <div className="login-illustration-circle login-circle-2"></div>
+              <div className="login-illustration-circle login-circle-3"></div>
+            </div>
+
+            <div className="login-brand-features">
+              <div className="login-feature-item">
+                <div className="login-feature-icon">✓</div>
+                <span>Enterprise-grade security</span>
+              </div>
+              <div className="login-feature-item">
+                <div className="login-feature-icon">✓</div>
+                <span>AI-powered analytics</span>
+              </div>
+              <div className="login-feature-item">
+                <div className="login-feature-icon">✓</div>
+                <span>Real-time collaboration</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-6 border border-red-200">
-            {error}
-          </div>
-        )}
+        {/* Right Panel - Form */}
+        <div className="login-form-panel">
+          <div className="login-form-container">
+            <div className="login-form-header">
+              <h2 className="login-form-title">Welcome Back</h2>
+              <p className="login-form-subtitle">Sign in to your account to continue</p>
+            </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input pl-10"
-                placeholder="you@company.com"
-              />
+            {error && (
+              <div className="login-error-alert" role="alert">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="login-form">
+              <div className="login-form-group">
+                <label htmlFor="email" className="login-label">
+                  Email Address
+                </label>
+                <div className="login-input-wrapper">
+                  <Mail className="login-input-icon" size={18} aria-hidden="true" />
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="login-input"
+                    placeholder="you@company.com"
+                    aria-label="Email Address"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              <div className="login-form-group">
+                <label htmlFor="password" className="login-label">
+                  Password
+                </label>
+                <div className="login-input-wrapper">
+                  <Lock className="login-input-icon" size={18} aria-hidden="true" />
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="login-input login-input-password"
+                    placeholder="••••••••"
+                    aria-label="Password"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="login-password-toggle"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={0}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="login-form-options">
+                <label className="login-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="login-checkbox"
+                    aria-label="Remember me"
+                  />
+                  <span className="login-checkbox-text">Remember me</span>
+                </label>
+                <Link to="/forgot-password" className="login-forgot-link">
+                  Forgot password?
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="login-submit-btn"
+                aria-busy={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="login-spinner" aria-hidden="true"></span>
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+            </form>
+
+            <div className="login-form-footer">
+              <p className="login-footer-text">
+                Don't have an account?{' '}
+                <Link to="/signup" className="login-footer-link">
+                  Sign up for free
+                </Link>
+              </p>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input pl-10"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full btn btn-primary py-2.5"
-          >
-            {loading ? <Loader className="animate-spin" size={20} /> : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-gray-500 border-t border-gray-100 pt-4">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700 no-underline">
-            Sign up
-          </Link>
         </div>
       </div>
     </div>
