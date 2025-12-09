@@ -5,11 +5,13 @@ import {
   BarChart3, Lock, Clock, Sparkles, Target, 
   Globe, Award 
 } from 'lucide-react';
+import styles from './Landing.module.css';
 
 // PUBLIC_INTERFACE
 /**
  * Landing Page Component
  * Professional landing page for SGE Platform with hero, features, benefits, and CTA sections.
+ * Uses isolated CSS Module for styling to avoid conflicts with other pages.
  * No dashboard preview shown pre-login. Ocean Professional theme applied throughout.
  */
 const Landing = () => {
@@ -18,37 +20,37 @@ const Landing = () => {
       icon: Shield,
       title: "Enterprise Security",
       description: "Bank-grade encryption and multi-tenant isolation ensure your data stays private and secure.",
-      color: "blue"
+      colorClass: "Blue"
     },
     {
       icon: Zap,
       title: "AI-Powered Insights",
       description: "Leverage Gemini AI to analyze trends, generate reports, and make data-driven decisions instantly.",
-      color: "amber"
+      colorClass: "Amber"
     },
     {
       icon: Users,
       title: "Team Collaboration",
       description: "Role-based access control and real-time updates keep your entire team aligned and productive.",
-      color: "green"
+      colorClass: "Green"
     },
     {
       icon: BarChart3,
       title: "Advanced Analytics",
       description: "Interactive dashboards and customizable metrics give you complete visibility into your business.",
-      color: "indigo"
+      colorClass: "Indigo"
     },
     {
       icon: Clock,
       title: "Real-Time Sync",
       description: "Instant data synchronization across all devices ensures everyone works with the latest information.",
-      color: "blue"
+      colorClass: "Blue"
     },
     {
       icon: Lock,
       title: "Compliance Ready",
       description: "Built-in compliance features and audit trails help you meet industry standards effortlessly.",
-      color: "amber"
+      colorClass: "Amber"
     }
   ];
 
@@ -71,100 +73,98 @@ const Landing = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={styles.landingPage}>
       {/* Navigation */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-blue-600">SGE</span>
-            <span className="text-xl font-semibold text-gray-900">Platform</span>
+      <header className={styles.header}>
+        <div className={styles.headerContainer}>
+          <div className={styles.brandSection}>
+            <span className={styles.brandLogo}>SGE</span>
+            <span className={styles.brandName}>Platform</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-gray-600 hover:text-gray-900 font-medium no-underline transition-colors">
+          <div className={styles.navActions}>
+            <Link to="/login" className={styles.navLink}>
               Log in
             </Link>
-            <Link to="/signup" className="btn btn-primary no-underline">
+            <Link to="/signup" className={styles.navButton}>
               Get Started
             </Link>
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className={styles.main}>
         {/* Hero Section - Refined with gradient */}
-        <section className="relative overflow-hidden pt-20 pb-24 sm:pt-32 sm:pb-40" style={{
-          background: 'linear-gradient(135deg, #EEF2FF 0%, #DBEAFE 25%, #FFFFFF 100%)'
-        }}>
+        <section className={styles.heroSection}>
           {/* Decorative elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className={styles.heroDecorative}>
+            <div className={styles.heroBlob1}></div>
+            <div className={styles.heroBlob2}></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 mb-8">
-              <Globe size={16} className="text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Trusted by leading organizations worldwide</span>
+          <div className={styles.heroContainer}>
+            <div className={styles.heroBadge}>
+              <Globe size={16} className={styles.heroBadgeIcon} />
+              <span className={styles.heroBadgeText}>Trusted by leading organizations worldwide</span>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-6">
+            <h1 className={styles.heroTitle}>
               Drive Growth with
               <br />
-              <span className="text-blue-600">AI-Powered Intelligence</span>
+              <span className={styles.heroTitleAccent}>AI-Powered Intelligence</span>
             </h1>
             
-            <p className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+            <p className={styles.heroSubtitle}>
               Transform data into decisions. Empower your team with enterprise-grade analytics, AI insights, and real-time collaboration.
             </p>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-              <Link to="/signup" className="btn btn-primary px-8 py-4 text-lg flex items-center justify-center gap-2 no-underline shadow-lg hover:shadow-xl transition-all">
+            <div className={styles.heroActions}>
+              <Link to="/signup" className={styles.heroButtonPrimary}>
                 Start Free Trial <ArrowRight size={20} />
               </Link>
-              <Link to="/login" className="btn btn-secondary px-8 py-4 text-lg no-underline">
+              <Link to="/login" className={styles.heroButtonSecondary}>
                 Sign In
               </Link>
             </div>
 
             {/* Value Props Strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16">
-              <div className="flex flex-col items-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">99.9%</div>
-                <div className="text-sm text-gray-600">Uptime SLA</div>
+            <div className={styles.valueStrip}>
+              <div className={styles.valueItem}>
+                <div className={styles.valueNumber}>99.9%</div>
+                <div className={styles.valueLabel}>Uptime SLA</div>
               </div>
-              <div className="flex flex-col items-center border-l-0 sm:border-l border-gray-300">
-                <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
-                <div className="text-sm text-gray-600">Expert Support</div>
+              <div className={styles.valueItem}>
+                <div className={styles.valueNumber}>24/7</div>
+                <div className={styles.valueLabel}>Expert Support</div>
               </div>
-              <div className="flex flex-col items-center border-l-0 sm:border-l border-gray-300">
-                <div className="text-3xl font-bold text-blue-600 mb-2">SOC 2</div>
-                <div className="text-sm text-gray-600">Certified Security</div>
+              <div className={styles.valueItem}>
+                <div className={styles.valueNumber}>SOC 2</div>
+                <div className={styles.valueLabel}>Certified Security</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section - Expanded to 6 items */}
-        <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Everything You Need to Succeed</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        {/* Features Section - 6 items */}
+        <section className={styles.featuresSection}>
+          <div className={styles.featuresContainer}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Everything You Need to Succeed</h2>
+              <p className={styles.sectionSubtitle}>
                 Powerful features designed for modern teams who demand excellence, security, and speed.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={styles.featuresGrid}>
               {features.map((feature, idx) => (
                 <div 
                   key={idx}
-                  className={`p-8 rounded-xl bg-${feature.color}-50 border border-${feature.color}-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+                  className={`${styles.featureCard} ${styles[`featureCard${feature.colorClass}`]}`}
                 >
-                  <div className={`w-14 h-14 bg-${feature.color}-100 rounded-xl flex items-center justify-center text-${feature.color}-600 mb-5`}>
+                  <div className={`${styles.featureIcon} ${styles[`featureIcon${feature.colorClass}`]}`}>
                     <feature.icon size={28} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h3 className={styles.featureTitle}>{feature.title}</h3>
+                  <p className={styles.featureDescription}>
                     {feature.description}
                   </p>
                 </div>
@@ -174,23 +174,23 @@ const Landing = () => {
         </section>
 
         {/* Use Cases / Benefits Section */}
-        <section className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Built for Your Success</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <section className={styles.useCasesSection}>
+          <div className={styles.useCasesContainer}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Built for Your Success</h2>
+              <p className={styles.sectionSubtitle}>
                 Whether you're planning strategy, tracking growth, or seeking insights, SGE adapts to your needs.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className={styles.useCasesGrid}>
               {useCases.map((useCase, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-shadow">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-md">
+                <div key={idx} className={styles.useCaseCard}>
+                  <div className={styles.useCaseIcon}>
                     <useCase.icon size={32} />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{useCase.title}</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed">
+                  <h3 className={styles.useCaseTitle}>{useCase.title}</h3>
+                  <p className={styles.useCaseDescription}>
                     {useCase.description}
                   </p>
                 </div>
@@ -200,17 +200,17 @@ const Landing = () => {
         </section>
 
         {/* Trusted By / Social Proof */}
-        <section className="py-16 bg-white border-y border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-8">
+        <section className={styles.trustedSection}>
+          <div className={styles.trustedContainer}>
+            <div className={styles.trustedHeader}>
+              <p className={styles.trustedLabel}>
                 Trusted by innovative teams worldwide
               </p>
-              <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
+              <div className={styles.trustedLogos}>
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Award size={24} className="text-gray-400" />
-                    <span className="text-lg font-semibold text-gray-400">Company {i}</span>
+                  <div key={i} className={styles.trustedLogo}>
+                    <Award size={24} className={styles.trustedLogoIcon} />
+                    <span className={styles.trustedLogoText}>Company {i}</span>
                   </div>
                 ))}
               </div>
@@ -219,87 +219,87 @@ const Landing = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-pattern pointer-events-none"></div>
-          <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Transform Your Business?</h2>
-            <p className="text-blue-100 text-xl mb-10 leading-relaxed">
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaPattern}></div>
+          <div className={styles.ctaContainer}>
+            <h2 className={styles.ctaTitle}>Ready to Transform Your Business?</h2>
+            <p className={styles.ctaSubtitle}>
               Join thousands of forward-thinking organizations using SGE to accelerate growth, streamline operations, and make smarter decisions.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/signup" className="inline-flex items-center justify-center gap-2 bg-white text-blue-900 font-bold px-10 py-4 rounded-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl no-underline text-lg">
+            <div className={styles.ctaActions}>
+              <Link to="/signup" className={styles.ctaButtonPrimary}>
                 Start Free Trial <ArrowRight size={20} />
               </Link>
-              <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white text-white font-bold px-10 py-4 rounded-lg hover:bg-white hover:text-blue-900 transition-all no-underline text-lg">
+              <Link to="/login" className={styles.ctaButtonSecondary}>
                 Sign In
               </Link>
             </div>
-            <p className="text-blue-200 text-sm mt-6">No credit card required • 14-day free trial • Cancel anytime</p>
+            <p className={styles.ctaDisclaimer}>No credit card required • 14-day free trial • Cancel anytime</p>
           </div>
         </section>
       </main>
 
       {/* Enhanced Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <footer className={styles.footer}>
+        <div className={styles.footerContainer}>
+          <div className={styles.footerGrid}>
             {/* Brand */}
-            <div className="col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl font-bold text-blue-400">SGE</span>
-                <span className="text-xl font-semibold text-white">Platform</span>
+            <div className={styles.footerBrand}>
+              <div className={styles.footerBrandLogo}>
+                <span className={styles.footerBrandIcon}>SGE</span>
+                <span className={styles.footerBrandName}>Platform</span>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className={styles.footerBrandDescription}>
                 Empowering organizations with AI-driven intelligence and strategic insights.
               </p>
             </div>
 
             {/* Product */}
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/signup" className="hover:text-white transition-colors no-underline">Features</Link></li>
-                <li><Link to="/signup" className="hover:text-white transition-colors no-underline">Pricing</Link></li>
-                <li><Link to="/login" className="hover:text-white transition-colors no-underline">Demo</Link></li>
-                <li><Link to="/signup" className="hover:text-white transition-colors no-underline">API</Link></li>
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerSectionTitle}>Product</h4>
+              <ul className={styles.footerLinks}>
+                <li><Link to="/signup" className={styles.footerLink}>Features</Link></li>
+                <li><Link to="/signup" className={styles.footerLink}>Pricing</Link></li>
+                <li><Link to="/login" className={styles.footerLink}>Demo</Link></li>
+                <li><Link to="/signup" className={styles.footerLink}>API</Link></li>
               </ul>
             </div>
 
             {/* Company */}
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">About</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Blog</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Careers</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Contact</Link></li>
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerSectionTitle}>Company</h4>
+              <ul className={styles.footerLinks}>
+                <li><Link to="/" className={styles.footerLink}>About</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Blog</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Careers</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Contact</Link></li>
               </ul>
             </div>
 
             {/* Legal */}
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Privacy</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Terms</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Security</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors no-underline">Compliance</Link></li>
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerSectionTitle}>Legal</h4>
+              <ul className={styles.footerLinks}>
+                <li><Link to="/" className={styles.footerLink}>Privacy</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Terms</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Security</Link></li>
+                <li><Link to="/" className={styles.footerLink}>Compliance</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-500">
+          <div className={styles.footerBottom}>
+            <p className={styles.footerCopyright}>
               © {new Date().getFullYear()} Strategic Growth Engine. All rights reserved.
             </p>
-            <div className="flex items-center gap-6">
-              <Link to="/login" className="text-sm hover:text-white transition-colors no-underline">
+            <div className={styles.footerBottomLinks}>
+              <Link to="/login" className={styles.footerBottomLink}>
                 Status
               </Link>
-              <Link to="/login" className="text-sm hover:text-white transition-colors no-underline">
+              <Link to="/login" className={styles.footerBottomLink}>
                 Documentation
               </Link>
-              <Link to="/login" className="text-sm hover:text-white transition-colors no-underline">
+              <Link to="/login" className={styles.footerBottomLink}>
                 Support
               </Link>
             </div>
