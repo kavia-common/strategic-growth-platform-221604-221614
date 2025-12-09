@@ -25,9 +25,9 @@ const Layout = () => {
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="p-6 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+          <Link to="/dashboard" className="text-xl font-bold text-white flex items-center gap-2 hover:opacity-90 transition-opacity no-underline">
             <span className="text-blue-500">SGE</span> Platform
-          </h1>
+          </Link>
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">

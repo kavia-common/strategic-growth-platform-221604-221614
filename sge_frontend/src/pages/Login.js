@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Lock, Mail, Loader } from 'lucide-react';
+import { Lock, Mail, Loader, ArrowLeft } from 'lucide-react';
 
 // PUBLIC_INTERFACE
 const Login = () => {
@@ -32,8 +32,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="absolute top-6 left-6">
+        <Link to="/" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors no-underline">
+            <ArrowLeft size={20} /> Back to Home
+        </Link>
+      </div>
+
+      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-xl border border-gray-100">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-500">Sign in to SGE Platform</p>
@@ -85,8 +91,11 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          Don't have an account? Contact your administrator.
+        <div className="mt-6 text-center text-sm text-gray-500 border-t border-gray-100 pt-4">
+          Don't have an account?{' '}
+          <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700 no-underline">
+            Sign up
+          </Link>
         </div>
       </div>
     </div>

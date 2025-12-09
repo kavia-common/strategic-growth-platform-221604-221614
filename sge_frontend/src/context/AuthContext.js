@@ -30,9 +30,20 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signUp = async (email, password, metadata = {}) => {
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+      },
+    });
+  };
+
   const value = {
     session,
     user,
+    signUp,
     signOut: () => supabase.auth.signOut(),
     loading
   };
