@@ -1,6 +1,6 @@
 import React from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Home, BarChart3, Folder, FileText, Settings, Users, Briefcase, DollarSign, MessageSquare, TrendingUp } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Users, Briefcase, DollarSign, MessageSquare, TrendingUp, TrendingDown, Target, Clock, Award, Activity } from 'lucide-react';
 
 // Mock data for charts and tables
 const productivityData = [
@@ -27,304 +27,380 @@ const taskStatusData = [
   { name: 'Blocked', value: 5, color: '#7B68EE' }
 ];
 
+const topPerformersData = [
+  { name: 'Marketing Team', score: 92 },
+  { name: 'Sales Team', score: 88 },
+  { name: 'Product Team', score: 85 },
+  { name: 'Engineering', score: 79 },
+  { name: 'Support Team', score: 75 }
+];
+
 const recentSessions = [
   { name: 'AHS Analysis', date: 'March 5, 2024', participants: '12 users', status: 'Active' },
   { name: 'Strategy Mtng', date: 'March 4, 2024', participants: '8 users', status: 'Pending' },
-  { name: 'Project Kickoff', date: 'March 3, 2024', participants: '15 users', status: 'In Progress' }
+  { name: 'Project Kickoff', date: 'March 3, 2024', participants: '15 users', status: 'In Progress' },
+  { name: 'Q1 Review', date: 'March 2, 2024', participants: '20 users', status: 'Completed' }
+];
+
+const recentActivities = [
+  { title: 'New user signup', time: '5 minutes ago', type: 'success' },
+  { title: 'Report generated', time: '1 hour ago', type: 'info' },
+  { title: 'System update', time: '2 hours ago', type: 'warning' },
+  { title: 'Backup completed', time: '3 hours ago', type: 'success' }
 ];
 
 // PUBLIC_INTERFACE
 /**
  * Dashboard Component
- * Implements pixel-accurate dashboard layout per design notes with:
- * - Fixed 240px sidebar with active/inactive/hover states
- * - Top header with title and action button
- * - 4-column metrics grid with icon chips and change indicators
- * - Charts row with line chart (Productivity) and bar chart (Workload)
- * - Bottom row with Recent Sessions table and Task Status donut chart
- * - Full responsive behavior and Ocean Professional theme
+ * Implements responsive dashboard layout with:
+ * - Multiple KPI rows with trend indicators
+ * - Responsive grid that adapts across breakpoints (1 col mobile, 2 tablet, 3-4 desktop)
+ * - Multiple chart types (line, bar, horizontal bar, donut)
+ * - Data tables and activity cards
+ * - Full vertical scrolling without content clipping
+ * - Ocean Professional theme styling
  */
 export default function Dashboard() {
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, active: true },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, active: false },
-    { id: 'projects', label: 'Projects', icon: Folder, active: false },
-    { id: 'reports', label: 'Reports', icon: FileText, active: false },
-    { id: 'settings', label: 'Settings', icon: Settings, active: false }
-  ];
-
   return (
-    <div className="dashboard-layout">
-      {/* Fixed Sidebar - 240px */}
-      <aside className="dashboard-sidebar">
-        {/* Logo Area */}
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <span className="sidebar-logo-symbol">D</span>
+    <div className="dashboard-container">
+      {/* Primary KPI Row - 4 columns */}
+      <div className="metrics-grid">
+        {/* Metric Card 1: Total Users */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-blue">
+            <Users className="metric-icon" size={20} />
           </div>
-          <span className="sidebar-logo-text">Dashboard</span>
+          <div className="metric-label">Total Users</div>
+          <div className="metric-value">12,845</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+12.5%</span>
+          </div>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                className={`sidebar-nav-item ${item.active ? 'active' : ''}`}
+        {/* Metric Card 2: Active Projects */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-green">
+            <Briefcase className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Active Projects</div>
+          <div className="metric-value">45</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+8.3%</span>
+          </div>
+        </div>
+
+        {/* Metric Card 3: Revenue */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-amber">
+            <DollarSign className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Revenue</div>
+          <div className="metric-value">$24,891</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+8.2%</span>
+          </div>
+        </div>
+
+        {/* Metric Card 4: AI Chat Sessions */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-purple">
+            <MessageSquare className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">AI Chat Sessions</div>
+          <div className="metric-value">3,234</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+15.3%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary KPI Row - Additional Metrics */}
+      <div className="metrics-grid">
+        {/* Metric Card 5: Completion Rate */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-teal">
+            <Target className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Completion Rate</div>
+          <div className="metric-value">87.5%</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+3.2%</span>
+          </div>
+        </div>
+
+        {/* Metric Card 6: Avg Response Time */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-orange">
+            <Clock className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Avg Response Time</div>
+          <div className="metric-value">2.4s</div>
+          <div className="metric-change negative">
+            <TrendingDown size={14} />
+            <span>-5.1%</span>
+          </div>
+        </div>
+
+        {/* Metric Card 7: Top Performer Score */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-pink">
+            <Award className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Top Performer Score</div>
+          <div className="metric-value">92</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+2.0%</span>
+          </div>
+        </div>
+
+        {/* Metric Card 8: Active Sessions */}
+        <div className="metric-card">
+          <div className="metric-icon-container bg-indigo">
+            <Activity className="metric-icon" size={20} />
+          </div>
+          <div className="metric-label">Active Sessions</div>
+          <div className="metric-value">156</div>
+          <div className="metric-change positive">
+            <TrendingUp size={14} />
+            <span>+18.7%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Row - 2 columns on desktop, stacks on mobile/tablet */}
+      <div className="charts-row">
+        {/* Line Chart Card - Productivity */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <h3 className="chart-title">Productivity over last 7 days</h3>
+            <select className="chart-filter-dropdown">
+              <option>Last 7 days</option>
+              <option>Last 30 days</option>
+              <option>Last 90 days</option>
+            </select>
+          </div>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={productivityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
+                <XAxis 
+                  dataKey="day" 
+                  tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                />
+                <YAxis 
+                  tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid var(--gray-200)',
+                    borderRadius: '6px',
+                    boxShadow: 'var(--shadow-lg)',
+                    padding: '12px'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="var(--chart-blue)" 
+                  strokeWidth={2}
+                  dot={{ r: 6, fill: 'var(--chart-blue)', strokeWidth: 2, stroke: 'white' }}
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Bar Chart Card - Workload */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <h3 className="chart-title">Workload by Week</h3>
+          </div>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={workloadData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
+                <XAxis 
+                  dataKey="week" 
+                  tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                />
+                <YAxis 
+                  tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid var(--gray-200)',
+                    borderRadius: '6px',
+                    boxShadow: 'var(--shadow-lg)',
+                    padding: '12px'
+                  }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  fill="var(--chart-blue)" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Three Column Section - Top Performers, Donut Chart, Recent Activity */}
+      <div className="three-col-row">
+        {/* Top Performers - Horizontal Bar Chart */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <h3 className="chart-title">Top Performers</h3>
+          </div>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart 
+                data={topPerformersData} 
+                layout="vertical"
+                margin={{ left: 20, right: 20 }}
               >
-                <Icon className="sidebar-nav-icon" size={20} />
-                <span className="sidebar-nav-label">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="dashboard-main">
-        {/* Top Header */}
-        <header className="dashboard-header">
-          <h1 className="dashboard-header-title">AI Facilitator</h1>
-          <button className="dashboard-header-button">
-            Link for analyze crowd intel
-          </button>
-        </header>
-
-        {/* Dashboard Content */}
-        <main className="dashboard-content">
-          {/* Metrics Grid - 4 Cards */}
-          <div className="metrics-grid">
-            {/* Metric Card 1: Total Users */}
-            <div className="metric-card">
-              <div className="metric-icon-container">
-                <Users className="metric-icon" size={20} />
-              </div>
-              <div className="metric-label">Total Users</div>
-              <div className="metric-value">12,8</div>
-              <div className="metric-change positive">
-                <TrendingUp size={14} />
-                <span>+12.5%</span>
-              </div>
-            </div>
-
-            {/* Metric Card 2: Active Projects */}
-            <div className="metric-card">
-              <div className="metric-icon-container">
-                <Briefcase className="metric-icon" size={20} />
-              </div>
-              <div className="metric-label">Active Projects</div>
-              <div className="metric-value">45</div>
-              <div className="metric-change positive">
-                <TrendingUp size={14} />
-                <span>+8.3%</span>
-              </div>
-            </div>
-
-            {/* Metric Card 3: Revenue */}
-            <div className="metric-card">
-              <div className="metric-icon-container">
-                <DollarSign className="metric-icon" size={20} />
-              </div>
-              <div className="metric-label">Revenue</div>
-              <div className="metric-value">₹24</div>
-              <div className="metric-change positive">
-                <TrendingUp size={14} />
-                <span>+8.2%</span>
-              </div>
-            </div>
-
-            {/* Metric Card 4: AI Chat Sessions */}
-            <div className="metric-card">
-              <div className="metric-icon-container">
-                <MessageSquare className="metric-icon" size={20} />
-              </div>
-              <div className="metric-label">AI Chat Sessions</div>
-              <div className="metric-value">3,234</div>
-              <div className="metric-change positive">
-                <TrendingUp size={14} />
-                <span>+15.3%</span>
-              </div>
-            </div>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
+                <XAxis 
+                  type="number"
+                  tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                />
+                <YAxis 
+                  type="category"
+                  dataKey="name" 
+                  tick={{ fill: 'var(--gray-600)', fontSize: 11 }}
+                  axisLine={{ stroke: 'var(--gray-200)' }}
+                  width={100}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid var(--gray-200)',
+                    borderRadius: '6px',
+                    boxShadow: 'var(--shadow-lg)',
+                    padding: '12px'
+                  }}
+                />
+                <Bar 
+                  dataKey="score" 
+                  fill="var(--chart-yellow)" 
+                  radius={[0, 4, 4, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
+        </div>
 
-          {/* Charts Row */}
-          <div className="charts-row">
-            {/* Line Chart Card - Productivity */}
-            <div className="chart-card chart-card-large">
-              <div className="chart-header">
-                <h3 className="chart-title">Productivity over last 7 days</h3>
-                <select className="chart-filter-dropdown">
-                  <option>Last 7 days</option>
-                  <option>Last 30 days</option>
-                  <option>Last 90 days</option>
-                </select>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={productivityData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
-                    <XAxis 
-                      dataKey="day" 
-                      tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
-                      axisLine={{ stroke: 'var(--gray-200)' }}
-                    />
-                    <YAxis 
-                      tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
-                      axisLine={{ stroke: 'var(--gray-200)' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid var(--gray-200)',
-                        borderRadius: '6px',
-                        boxShadow: 'var(--shadow-lg)',
-                        padding: '12px'
-                      }}
-                    />
-                    <defs>
-                      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--chart-blue)" stopOpacity={0.1} />
-                        <stop offset="100%" stopColor="var(--chart-blue)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="var(--chart-blue)" 
-                      strokeWidth={2}
-                      dot={{ r: 6, fill: 'var(--chart-blue)', strokeWidth: 2, stroke: 'white' }}
-                      activeDot={{ r: 8 }}
-                      fill="url(#lineGradient)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Bar Chart Card - Workload */}
-            <div className="chart-card chart-card-small">
-              <div className="chart-header">
-                <h3 className="chart-title">Workload by Team</h3>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={workloadData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
-                    <XAxis 
-                      dataKey="week" 
-                      tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
-                      axisLine={{ stroke: 'var(--gray-200)' }}
-                    />
-                    <YAxis 
-                      tick={{ fill: 'var(--gray-600)', fontSize: 12 }}
-                      axisLine={{ stroke: 'var(--gray-200)' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid var(--gray-200)',
-                        borderRadius: '6px',
-                        boxShadow: 'var(--shadow-lg)',
-                        padding: '12px'
-                      }}
-                    />
-                    <Bar 
-                      dataKey="value" 
-                      fill="var(--chart-blue)" 
-                      radius={[4, 4, 0, 0]}
-                      barSize={40}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Row - Table and Donut Chart */}
-          <div className="bottom-row">
-            {/* Recent Sessions Table */}
-            <div className="table-card">
-              <h3 className="table-title">Recent Sessions</h3>
-              <div className="table-wrapper">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Session Name</th>
-                      <th>Date</th>
-                      <th>Participants</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentSessions.map((session, idx) => (
-                      <tr key={idx}>
-                        <td className="table-cell-primary">{session.name}</td>
-                        <td className="table-cell-secondary">{session.date}</td>
-                        <td className="table-cell-secondary">{session.participants}</td>
-                        <td>
-                          <span className={`status-badge status-${session.status.toLowerCase().replace(' ', '-')}`}>
-                            {session.status}
-                          </span>
-                        </td>
-                      </tr>
+        {/* Task Status Donut Chart */}
+        <div className="chart-card">
+          <h3 className="chart-title">Task Status</h3>
+          <div className="donut-container">
+            <div className="donut-chart-wrapper">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={taskStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {taskStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid var(--gray-200)',
+                      borderRadius: '6px',
+                      boxShadow: 'var(--shadow-lg)',
+                      padding: '12px'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-
-            {/* Task Status Donut Chart */}
-            <div className="donut-card">
-              <h3 className="donut-title">Task Status</h3>
-              <div className="donut-container">
-                <div className="donut-chart-wrapper">
-                  <ResponsiveContainer width="100%" height={240}>
-                    <PieChart>
-                      <Pie
-                        data={taskStatusData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={2}
-                        dataKey="value"
-                        startAngle={90}
-                        endAngle={-270}
-                      >
-                        {taskStatusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'white',
-                          border: '1px solid var(--gray-200)',
-                          borderRadius: '6px',
-                          boxShadow: 'var(--shadow-lg)',
-                          padding: '12px'
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+            <div className="donut-legend">
+              {taskStatusData.map((item, idx) => (
+                <div key={idx} className="legend-item">
+                  <div 
+                    className="legend-indicator" 
+                    style={{ backgroundColor: item.color }}
+                  ></div>
+                  <span className="legend-label">{item.name}</span>
+                  <span className="legend-value">{item.value}</span>
                 </div>
-                <div className="donut-legend">
-                  {taskStatusData.map((item, idx) => (
-                    <div key={idx} className="legend-item">
-                      <div 
-                        className="legend-indicator" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="legend-label">{item.name}</span>
-                      <span className="legend-value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        </main>
+        </div>
+
+        {/* Recent Activity Card */}
+        <div className="activity-card">
+          <h3 className="chart-title">Recent Activity</h3>
+          <div className="activity-list">
+            {recentActivities.map((activity, idx) => (
+              <div key={idx} className="activity-item">
+                <div className={`activity-dot ${activity.type}`}></div>
+                <div className="activity-content">
+                  <p className="activity-title">{activity.title}</p>
+                  <p className="activity-time">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Row - Recent Sessions Table */}
+      <div className="bottom-row">
+        <div className="table-card">
+          <h3 className="table-title">Recent Sessions</h3>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Session Name</th>
+                  <th>Date</th>
+                  <th>Participants</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentSessions.map((session, idx) => (
+                  <tr key={idx}>
+                    <td className="table-cell-primary">{session.name}</td>
+                    <td className="table-cell-secondary">{session.date}</td>
+                    <td className="table-cell-secondary">{session.participants}</td>
+                    <td>
+                      <span className={`status-badge status-${session.status.toLowerCase().replace(' ', '-')}`}>
+                        {session.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

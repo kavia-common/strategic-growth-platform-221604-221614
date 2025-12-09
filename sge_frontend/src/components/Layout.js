@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, MessageSquare, LogOut, Menu, User } from 'lucide-react';
-import classNames from 'classnames';
+import { LayoutDashboard, MessageSquare, LogOut, Menu, X, User } from 'lucide-react';
 
 // PUBLIC_INTERFACE
+/**
+ * Layout Component
+ * Provides the main application layout with:
+ * - Fixed sidebar navigation with Dashboard and AI Chat entries
+ * - Ocean Professional theme styling
+ * - Mobile collapse/expand behavior
+ * - Sticky header
+ * - Scrollable main content area
+ */
 const Layout = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -20,70 +29,103 @@ const Layout = () => {
     { label: 'AI Chat', path: '/chat', icon: MessageSquare },
   ];
 
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="app-layout">
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="p-6 border-b border-gray-700">
-          <Link to="/dashboard" className="text-xl font-bold text-white flex items-center gap-2 hover:opacity-90 transition-opacity no-underline">
-            <span className="text-blue-500">SGE</span> Platform
-          </Link>
+      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {/* Mobile close button */}
+        <button 
+          className="sidebar-close-btn"
+          onClick={closeSidebar}
+          aria-label="Close sidebar"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="sidebar-header">
+          <div className="sidebar-logo-container">
+            <div className="sidebar-logo-icon">
+              <span className="sidebar-logo-symbol">SGE</span>
+            </div>
+            <h1 className="sidebar-logo-text">Platform</h1>
+          </div>
         </div>
         
-        <nav className="flex-1 p-4 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={classNames('sidebar-link', {
-                'active': location.pathname.startsWith(item.path)
-              })}
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
+        <nav className="sidebar-nav">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <Icon size={20} className="sidebar-nav-icon" />
+                <span className="sidebar-nav-label">{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-              {user?.email?.[0].toUpperCase()}
+        <div className="sidebar-footer">
+          <div className="sidebar-user-info">
+            <div className="user-avatar">
+              {user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{user?.email}</p>
-              <p className="text-xs text-gray-400 truncate">Organization Member</p>
+            <div className="user-details">
+              <p className="user-email">{user?.email || 'User'}</p>
+              <p className="user-role">Organization Member</p>
             </div>
           </div>
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+            className="sidebar-signout-btn"
           >
             <LogOut size={16} />
-            Sign Out
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay"
+          onClick={closeSidebar}
+        />
+      )}
+
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Topbar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold text-gray-800">
+      <div className="app-main">
+        {/* Sticky Header */}
+        <header className="app-header">
+          <div className="header-left">
+            <button 
+              className="mobile-menu-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle sidebar"
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="header-title">
               {navItems.find(item => location.pathname.startsWith(item.path))?.label || 'Dashboard'}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
-             {/* Placeholder for topbar actions */}
-             <div className="text-sm text-gray-500">
-                Ocean Professional Theme
-             </div>
+          <div className="header-right">
+            <div className="header-theme-badge">
+              Ocean Professional
+            </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-[var(--bg-primary)]">
+        {/* Scrollable Page Content */}
+        <main className="app-content">
           <Outlet />
         </main>
       </div>
