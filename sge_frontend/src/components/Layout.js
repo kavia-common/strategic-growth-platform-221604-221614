@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, MessageSquare, LogOut, Menu, User } from 'lucide-react';
-import classNames from 'classnames';
+import { LayoutDashboard, MessageSquare, LogOut, User } from 'lucide-react';
 
 // PUBLIC_INTERFACE
+/**
+ * Main layout component with themed sidebar navigation
+ * Provides navigation between Dashboard and AI Chat with Ocean Professional theme
+ */
 const Layout = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
@@ -23,44 +26,66 @@ const Layout = () => {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="p-6 border-b border-gray-700">
-          <Link to="/dashboard" className="text-xl font-bold text-white flex items-center gap-2 hover:opacity-90 transition-opacity no-underline">
-            <span className="text-blue-500">SGE</span> Platform
+      <aside className="sidebar-modern">
+        {/* Brand Section */}
+        <div className="sidebar-brand">
+          <Link 
+            to="/dashboard" 
+            className="sidebar-brand-link"
+            aria-label="SGE Platform Home"
+          >
+            <span className="sidebar-brand-icon">SGE</span>
+            <span className="sidebar-brand-text">Platform</span>
           </Link>
+          <div className="sidebar-version-badge">v1.0</div>
         </div>
         
-        <nav className="flex-1 p-4 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={classNames('sidebar-link', {
-                'active': location.pathname.startsWith(item.path)
-              })}
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
+        {/* Navigation */}
+        <nav className="sidebar-nav" role="navigation" aria-label="Main navigation">
+          <div className="sidebar-nav-group">
+            {navItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.path);
+              const Icon = item.icon;
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <div className="sidebar-nav-item-icon">
+                    <Icon size={20} strokeWidth={2} />
+                  </div>
+                  <span className="sidebar-nav-item-label">{item.label}</span>
+                  {isActive && <div className="sidebar-nav-item-indicator" />}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-              {user?.email?.[0].toUpperCase()}
+        {/* User Profile Section */}
+        <div className="sidebar-footer">
+          <div className="sidebar-separator" />
+          
+          <div className="sidebar-user">
+            <div className="sidebar-user-avatar">
+              <User size={16} strokeWidth={2.5} />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{user?.email}</p>
-              <p className="text-xs text-gray-400 truncate">Organization Member</p>
+            <div className="sidebar-user-info">
+              <p className="sidebar-user-email">{user?.email}</p>
+              <p className="sidebar-user-role">Member</p>
             </div>
           </div>
+          
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+            className="sidebar-signout-btn"
+            aria-label="Sign out"
           >
-            <LogOut size={16} />
-            Sign Out
+            <LogOut size={16} strokeWidth={2} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -68,17 +93,16 @@ const Layout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
+        <header className="layout-topbar">
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="layout-topbar-title">
               {navItems.find(item => location.pathname.startsWith(item.path))?.label || 'Dashboard'}
             </h2>
           </div>
           <div className="flex items-center gap-4">
-             {/* Placeholder for topbar actions */}
-             <div className="text-sm text-gray-500">
-                Ocean Professional Theme
-             </div>
+            <div className="layout-topbar-theme-tag">
+              Ocean Professional
+            </div>
           </div>
         </header>
 
