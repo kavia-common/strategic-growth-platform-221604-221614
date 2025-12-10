@@ -41,16 +41,11 @@ const resolveBaseURL = () => {
     );
   }
   // Normalize: remove trailing slash to avoid double slashes when joining with /api/...
-  if (base) {
-    return base.replace(/\/+$/, '');
+  if (base && base.endsWith('/')) {
+    return base.slice(0, -1);
   }
   return base || '';
 };
-
-// Verified: REACT_APP_API_URL should be the base URL (e.g., https://api.example.com).
-// Backend routes are mounted at /api/..., so calls should be /api/chat/conversations.
-// Axios automatically handles CORS preflight (OPTIONS).
-// Credentials (cookies) are NOT sent by default unless withCredentials is set (not needed here).
 
 const api = axios.create({
   baseURL: resolveBaseURL(),
