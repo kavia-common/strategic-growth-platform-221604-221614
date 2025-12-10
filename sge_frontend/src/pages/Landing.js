@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, Shield, Zap, Users, TrendingUp, 
   BarChart3, Lock, Clock, Sparkles, Target, 
   Globe, Award 
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import '../styles/Landing.css';
 
 // PUBLIC_INTERFACE
@@ -15,6 +16,9 @@ import '../styles/Landing.css';
  * No dashboard preview shown pre-login. Ocean Professional theme applied throughout.
  */
 const Landing = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: Shield,
@@ -82,12 +86,25 @@ const Landing = () => {
             <span className="brandName">Platform</span>
           </div>
           <div className="navActions">
-            <Link to="/login" className="navLink">
-              Log in
-            </Link>
-            <Link to="/signup" className="navButton">
-              Get Started
-            </Link>
+            {user ? (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="navButton"
+                aria-label="Go to Dashboard"
+              >
+                Dashboard
+              </button>
+            ) : (
+              <>
+                <Link to="/login" className="navLink">
+                  Log in
+                </Link>
+                <Link to="/signup" className="navButton">
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -118,12 +135,25 @@ const Landing = () => {
             </p>
 
             <div className="heroActions">
-              <Link to="/signup" className="heroButtonPrimary">
-                Start Free Trial <ArrowRight size={20} />
-              </Link>
-              <Link to="/login" className="heroButtonSecondary">
-                Sign In
-              </Link>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard')}
+                  className="heroButtonPrimary"
+                  aria-label="Go to Dashboard"
+                >
+                  Go to Dashboard <ArrowRight size={20} />
+                </button>
+              ) : (
+                <>
+                  <Link to="/signup" className="heroButtonPrimary">
+                    Start Free Trial <ArrowRight size={20} />
+                  </Link>
+                  <Link to="/login" className="heroButtonSecondary">
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Value Props Strip */}
@@ -227,12 +257,25 @@ const Landing = () => {
               Join thousands of forward-thinking organizations using SGE to accelerate growth, streamline operations, and make smarter decisions.
             </p>
             <div className="ctaActions">
-              <Link to="/signup" className="ctaButtonPrimary">
-                Start Free Trial <ArrowRight size={20} />
-              </Link>
-              <Link to="/login" className="ctaButtonSecondary">
-                Sign In
-              </Link>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard')}
+                  className="ctaButtonPrimary"
+                  aria-label="Go to Dashboard"
+                >
+                  Go to Dashboard <ArrowRight size={20} />
+                </button>
+              ) : (
+                <>
+                  <Link to="/signup" className="ctaButtonPrimary">
+                    Start Free Trial <ArrowRight size={20} />
+                  </Link>
+                  <Link to="/login" className="ctaButtonSecondary">
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
             <p className="ctaDisclaimer">No credit card required • 14-day free trial • Cancel anytime</p>
           </div>
