@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { supabase } from '../lib/supabase';
+import supabase from '../lib/supabase';
 
 /**
  * Resolve API base URL from multiple env options to be resilient to configuration differences.

@@ -9,17 +9,17 @@ This project provides a minimal React template with a clean, modern UI and minim
 - **Fast**: Minimal dependencies for quick loading times
 - **Simple**: Easy to understand and modify
 
-## Getting Started
-
-Environment setup:
+## Environment
 
 Create a .env file in this folder (copy from .env.example) and set:
-- REACT_APP_SUPABASE_URL
-- REACT_APP_SUPABASE_ANON_KEY
-- REACT_APP_API_URL
+- REACT_APP_SUPABASE_URL (required)
+- REACT_APP_SUPABASE_ANON_KEY (required)
+- REACT_APP_API_URL (recommended, base URL to your backend, e.g., http://localhost:3001)
 - REACT_APP_SITE_URL (optional but recommended for email redirect flows)
 
-Supabase client is initialized at src/lib/supabase.js and is used by AuthContext, Login, Signup and request interceptors. If you see errors about "Cannot resolve '../lib/supabase'", ensure the file exists at src/lib/supabase.js and that the env variables above are set.
+The Supabase client is initialized at src/lib/supabase.js and is used by AuthContext, Login, Signup and request interceptors. If you see errors about "Cannot resolve '../lib/supabase'", ensure the file exists at src/lib/supabase.js and that the env variables above are set.
+
+## Getting Started
 
 In the project directory, you can run:
 
