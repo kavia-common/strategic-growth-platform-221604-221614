@@ -22,6 +22,7 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
+  const justCreatedConversationId = useRef(null);
 
   // Simple toast helper
   const showError = (msg) => {
@@ -71,6 +72,12 @@ const Chat = () => {
       if (activeConversationId.toString().startsWith('temp-')) {
          setMessages([]);
       } else {
+         // Check if we just created this conversation to skip fetch/loading
+         if (justCreatedConversationId.current === activeConversationId) {
+           // Reset the ref so future refetches (e.g. clicking away and back) work
+           justCreatedConversationId.current = null;
+           return;
+         }
          fetchMessages(activeConversationId);
       }
     }
@@ -130,6 +137,7 @@ const Chat = () => {
       }
 
       if ((!activeConversationId || isTempId) && conversation_id) {
+        justCreatedConversationId.current = conversation_id;
         setActiveConversationId(conversation_id);
         
         // Update conversation list item from temp to real
@@ -196,6 +204,7 @@ const Chat = () => {
       if (created?.id) {
         // Replace placeholder with real record
         setConversations(prev => prev.map(c => c.id === tempId ? created : c));
+        justCreatedConversationId.current = created.id;
         setActiveConversationId(created.id);
         // Messages are empty for new chat
         setMessages([]);
