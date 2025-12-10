@@ -1,6 +1,8 @@
 import api from './api';
 
-// Verified: Uses the configured axios instance from api.js (resolves correct backend URL)
+// Verified: Uses the shared axios instance from api.js which handles:
+// - baseURL resolution (REACT_APP_API_URL or window.location fallback)
+// - Authorization header injection (Bearer token)
 
 // PUBLIC_INTERFACE
 /**
@@ -41,13 +43,17 @@ export async function getMessages(conversationId) {
  * createConversation
  * Creates a new conversation.
  * Endpoint: POST /api/chat/conversations
- * Returns: { id, title, created_at }
+ * Payload: JSON { title }
+ * Returns: { id, title, created_at } (Parses 200/201 response)
+ * Throws: Error with exact text from backend if non-2xx
  */
 export async function createConversation(title) {
   try {
     const res = await api.post('/api/chat/conversations', { title });
+    // Returns parsed JSON response
     return res.data;
   } catch (err) {
+    // Propagates exact error text to be shown in Chat.js toast
     throw formatApiError(err, 'Failed to create conversation');
   }
 }
@@ -74,15 +80,19 @@ export async function sendMessage(conversationId, content) {
 
 /**
  * Convert axios error to a user-friendly error with details preserved.
+ * Prioritizes backend error message/text to satisfy requirement of propagating exact error text.
  * PRIVATE helper.
  */
 function formatApiError(err, fallbackMessage) {
   const status = err?.response?.status;
   const data = err?.response?.data;
+  
+  // Determine the best error message to show
+  // Check for structured error fields or raw string body
   const message =
     data?.message ||
     data?.error ||
-    (typeof data === 'string' ? data : '') ||
+    (typeof data === 'string' && data.length > 0 ? data : '') ||
     err?.message ||
     fallbackMessage ||
     'Request failed';
