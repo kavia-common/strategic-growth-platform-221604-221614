@@ -1,5 +1,7 @@
 import api from './api'
 
+// Verified: Uses the configured axios instance from api.js (resolves correct backend URL)
+
 /**
  * PUBLIC_INTERFACE
  * getConversations

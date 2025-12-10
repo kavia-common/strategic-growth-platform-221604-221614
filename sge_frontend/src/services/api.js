@@ -15,7 +15,22 @@ const resolveBaseURL = () => {
     process.env.REACT_APP_API_BASE,
   ].filter(Boolean);
 
-  const base = candidates[0];
+  let base = candidates[0];
+
+  // Fallback: derive from window.location if env vars are missing
+  if (!base && typeof window !== 'undefined') {
+    try {
+      const url = new URL(window.location.href);
+      // If running on port 3000 (standard React dev), assume backend is on 3001
+      if (url.port === '3000') {
+        url.port = '3001';
+      }
+      base = url.origin;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('[API] Failed to derive base URL from window.location', e);
+    }
+  }
 
   if (!base && typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
