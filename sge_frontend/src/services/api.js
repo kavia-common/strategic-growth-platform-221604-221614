@@ -4,18 +4,16 @@ import supabase from '../lib/supabase';
 /**
  * Resolve API base URL from multiple env options to be resilient to configuration differences.
  * Priority order:
- *  - REACT_APP_API_URL
- *  - REACT_APP_BACKEND_URL
  *  - REACT_APP_API_BASE
+ *  - REACT_APP_BACKEND_URL
  * Fallbacks:
  *  - If on port 3000 (CRA dev), assume backend on 3001
  *  - Otherwise try same origin
  */
 const resolveBaseURL = () => {
   const candidates = [
-    process.env.REACT_APP_API_URL,
-    process.env.REACT_APP_BACKEND_URL,
     process.env.REACT_APP_API_BASE,
+    process.env.REACT_APP_BACKEND_URL,
   ].filter(Boolean);
 
   let base = candidates[0];
@@ -37,7 +35,7 @@ const resolveBaseURL = () => {
   if (!base && typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
     console.warn(
-      '[API] Missing base URL. Set REACT_APP_API_URL (preferred) or REACT_APP_BACKEND_URL/REACT_APP_API_BASE in .env'
+      '[API] Missing base URL. Set REACT_APP_API_BASE (preferred) or REACT_APP_BACKEND_URL in .env'
     );
   }
   // Normalize: remove trailing slash to avoid double slashes when joining with /api/...
@@ -47,7 +45,7 @@ const resolveBaseURL = () => {
   return base || '';
 };
 
-// Verified: REACT_APP_API_URL should be the base URL (e.g., https://api.example.com).
+// Verified: REACT_APP_API_BASE should be the base URL (e.g., https://api.example.com).
 // Backend routes are mounted at /api/..., so calls should be /api/chat/conversations.
 // Axios automatically handles CORS preflight (OPTIONS).
 

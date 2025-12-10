@@ -103,7 +103,7 @@ const Chat = () => {
         fetchMessages(activeConversationId);
       }
     }
-  }, [activeConversationId, fetchMessages]);
+  }, [activeConversationId]);
 
   useEffect(() => {
     scrollToBottom();

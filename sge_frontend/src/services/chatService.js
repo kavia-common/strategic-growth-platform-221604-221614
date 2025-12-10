@@ -1,7 +1,7 @@
 import api from './api';
 
 // Verified: Uses the shared axios instance from api.js which handles:
-// - baseURL resolution (REACT_APP_API_URL or window.location fallback)
+// - baseURL resolution (REACT_APP_API_BASE or window.location fallback)
 // - Authorization header injection (Bearer token)
 
 // PUBLIC_INTERFACE
