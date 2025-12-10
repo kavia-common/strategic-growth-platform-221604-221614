@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { Mail, Lock, Building, Eye, EyeOff, ArrowLeft, Sparkles, CheckCircle, XCircle } from 'lucide-react';
 
 // PUBLIC_INTERFACE
@@ -47,6 +48,7 @@ const Signup = () => {
     setError(null);
 
     try {
+      // Step 1: Sign up with Supabase
       const { data, error } = await signUp(email, password, {
         organization_name: orgName
       });
@@ -54,7 +56,50 @@ const Signup = () => {
       if (error) throw error;
       
       if (data.user) {
-         navigate('/dashboard');
+        // Step 2: Call onboarding endpoint to create organization and profile
+        try {
+          // Get the session to retrieve access token
+          const { data: sessionData } = await supabase.auth.getSession();
+          const accessToken = sessionData?.session?.access_token;
+
+          if (!accessToken) {
+            console.warn('No access token available, skipping onboarding call');
+            navigate('/dashboard');
+            return;
+          }
+
+          // Call the onboarding endpoint
+          const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:3001';
+          const onboardingUrl = `${apiBase}/api/onboarding/complete`;
+
+          const response = await fetch(onboardingUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+              organization_name: orgName || 'Default Organization'
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Onboarding failed:', errorData);
+            // Don't block navigation - user can complete onboarding later
+            setError(`Account created but onboarding incomplete: ${errorData.error || 'Unknown error'}`);
+          } else {
+            const result = await response.json();
+            console.log('Onboarding completed:', result);
+          }
+        } catch (onboardingError) {
+          console.error('Onboarding error:', onboardingError);
+          // Don't block navigation - gracefully handle onboarding failure
+          setError('Account created successfully. You may need to complete setup in your profile.');
+        }
+
+        // Navigate to dashboard regardless of onboarding outcome
+        navigate('/dashboard');
       }
     } catch (err) {
       setError(err.message);
