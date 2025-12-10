@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, MessageSquare, LogOut, User, Shield } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, LogOut, User } from 'lucide-react';
 
 // PUBLIC_INTERFACE
 /**
@@ -21,7 +21,6 @@ const Layout = () => {
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'AI Chat', path: '/chat', icon: MessageSquare },
-    { label: 'Admin', path: '/admin', icon: Shield },
   ];
 
   return (

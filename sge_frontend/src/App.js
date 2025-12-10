@@ -8,8 +8,6 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
-import Admin from './pages/Admin';
-import AdminAI from './pages/AdminAI';
 import './App.css';
 
 // PUBLIC_INTERFACE
@@ -27,10 +25,6 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/chat" element={<Chat />} />
             </Route>
-            
-            {/* Admin routes - uses its own layout via AdminSidePanel */}
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/ai" element={<AdminAI />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
