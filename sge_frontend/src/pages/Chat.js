@@ -34,10 +34,6 @@ const Chat = () => {
       const list = await getConversations();
       // Preserve optimistic conversations (starting with temp- or conv-)
       setConversations(prev => {
-        // If we have optimistically created convs that are NOT in the list yet, keep them?
-        // Actually, for "minimal" flow, trust the server list mostly, 
-        // but if we just created one, it should be in the list if backend is fast enough.
-        
         // Filter out old temp ones if they are not active? 
         // Logic: merge server list with any temp items not in server list
         const temps = prev.filter(c => c.id.toString().startsWith('temp-'));
@@ -46,14 +42,12 @@ const Chat = () => {
         
         // If the active conversation is not in the new list and not temp, 
         // it might have been deleted or we are in a weird state. 
-        // But for "in-memory" backend, a refresh might wipe data.
         return [...uniqueTemps, ...list];
       });
       
       // Only set active if none selected and list available
       setActiveConversationId(prev => {
         if (!prev && list.length > 0) return list[0].id;
-        // If the previously active one is gone (e.g. server restart), select the first one?
         // Check if prev exists in list or is temp
         const stillExists = list.find(c => c.id === prev) || prev?.toString().startsWith('temp-');
         if (prev && !stillExists && list.length > 0) return list[0].id;
@@ -122,40 +116,32 @@ const Chat = () => {
     setSending(true);
 
     try {
-      // If activeConversationId is temp, send null to create new, OR send the temp ID if backend handles it?
-      // Backend expects null conversation_id to create new.
-      // Our createNewChat creates a real conversation first usually, but if user sends immediately?
-      // createNewChat() sets activeConversationId to temp. 
-      // So if active ID is temp, we should treat it as new conversation for the message call?
-      // Actually, createNewChat below calls API to create conversation immediately.
-      // So activeConversationId should be real unless that failed.
-      // If active ID is 'temp-...', pass null to sendMessageApi?
-      
+      // If activeConversationId is temp, send null to create new
       const isTempId = activeConversationId && activeConversationId.toString().startsWith('temp-');
       const targetId = isTempId ? null : activeConversationId;
 
       const result = await sendMessageApi(targetId, tempMessage.content);
       
-      // Expected shape from modified backend: 
-      // { conversation_id, user_message, assistant_message }
-      
-      const serverConvId = result?.conversation_id;
+      // Expected shape: { conversation_id, user_message, assistant_message }
+      const { conversation_id, user_message, assistant_message } = result || {};
 
-      if ((!activeConversationId || isTempId) && serverConvId) {
-        setActiveConversationId(serverConvId);
+      if (!conversation_id) {
+          throw new Error('Invalid response from server');
+      }
+
+      if ((!activeConversationId || isTempId) && conversation_id) {
+        setActiveConversationId(conversation_id);
         
         // Update conversation list item from temp to real
         setConversations(prev => {
-          // If we had a temp one selected
           if (isTempId) {
-             return prev.map(c => c.id === activeConversationId ? { ...c, id: serverConvId, title: tempMessage.content.substring(0,20) } : c);
+             return prev.map(c => c.id === activeConversationId ? { ...c, id: conversation_id, title: tempMessage.content.substring(0,30) } : c);
           }
-          // Otherwise insert new
-          const exists = prev.some(c => c.id === serverConvId);
+          const exists = prev.some(c => c.id === conversation_id);
           if (exists) return prev;
           
           const newConv = {
-            id: serverConvId,
+            id: conversation_id,
             title: tempMessage.content.substring(0, 30) || 'New Conversation',
             created_at: new Date().toISOString(),
           };
@@ -163,25 +149,25 @@ const Chat = () => {
         });
       }
 
-      if (result?.assistant_message) {
+      if (assistant_message) {
         setMessages(prev => {
           // Remove the temp user message
           const withoutTemp = prev.filter(m => m.id !== tempMessage.id);
           
-          // Use the real user message from server
-          const realUserMsg = result.user_message || tempMessage;
+          // Use the real user message from server (if available) or temp
+          const realUserMsg = user_message || tempMessage;
           
           // Append real user msg + assistant msg
-          return [...withoutTemp, realUserMsg, result.assistant_message];
+          return [...withoutTemp, realUserMsg, assistant_message];
         });
       } else {
         // Fallback
-        fetchMessages(serverConvId || activeConversationId);
+        fetchMessages(conversation_id || activeConversationId);
       }
     } catch (error) {
       console.error('Error sending message:', error);
       showError('Failed to send message');
-      // Rollback temp state
+      // Rollback: remove message bubble but restore input text so user doesn't lose it
       setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
       setNewMessage(tempMessage.content);
     } finally {
@@ -375,7 +361,7 @@ const Chat = () => {
                 />
                 <div className="chat-input-actions">
                   <button
-                    type=\"button\"
+                    type="button"
                     onClick={handleMicClick}
                     disabled={sending}
                     className="chat-mic-btn"

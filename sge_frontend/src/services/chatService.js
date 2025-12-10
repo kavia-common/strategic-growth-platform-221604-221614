@@ -1,41 +1,47 @@
-import api from './api'
+import api from './api';
 
 // Verified: Uses the configured axios instance from api.js (resolves correct backend URL)
 
+// PUBLIC_INTERFACE
 /**
- * PUBLIC_INTERFACE
  * getConversations
  * Fetch list of conversations for the authenticated user.
+ * Endpoint: GET /api/chat/conversations
+ * Returns: Array of { id, title, created_at }
  */
 export async function getConversations() {
   try {
     const res = await api.get('/api/chat/conversations');
-    return res.data || [];
+    // Ensure we always return an array
+    return Array.isArray(res.data) ? res.data : [];
   } catch (err) {
-    // Surface error for UI handling
     throw formatApiError(err, 'Failed to fetch conversations');
   }
 }
 
+// PUBLIC_INTERFACE
 /**
- * PUBLIC_INTERFACE
  * getMessages
  * Fetch messages for a given conversation.
+ * Endpoint: GET /api/chat/conversations/:id/messages
+ * Returns: Array of { id, conversation_id, role, content, created_at }
  */
 export async function getMessages(conversationId) {
+  if (!conversationId) return [];
   try {
     const res = await api.get(`/api/chat/conversations/${conversationId}/messages`);
-    return res.data || [];
+    return Array.isArray(res.data) ? res.data : [];
   } catch (err) {
     throw formatApiError(err, 'Failed to fetch messages');
   }
 }
 
+// PUBLIC_INTERFACE
 /**
- * PUBLIC_INTERFACE
  * createConversation
- * Creates a new conversation. If backend returns the created row, it is used.
- * Optionally accepts a title; backend will default if omitted.
+ * Creates a new conversation.
+ * Endpoint: POST /api/chat/conversations
+ * Returns: { id, title, created_at }
  */
 export async function createConversation(title) {
   try {
@@ -46,10 +52,13 @@ export async function createConversation(title) {
   }
 }
 
+// PUBLIC_INTERFACE
 /**
- * PUBLIC_INTERFACE
  * sendMessage
- * Sends a message to a conversation. If conversationId is null, backend may create a new conversation.
+ * Sends a message to a conversation.
+ * Endpoint: POST /api/chat/message
+ * Request: { conversation_id, content }
+ * Returns: { conversation_id, user_message, assistant_message }
  */
 export async function sendMessage(conversationId, content) {
   try {
@@ -73,10 +82,11 @@ function formatApiError(err, fallbackMessage) {
   const message =
     data?.message ||
     data?.error ||
-    data ||
+    (typeof data === 'string' ? data : '') ||
     err?.message ||
     fallbackMessage ||
     'Request failed';
+  
   const error = new Error(message);
   error.status = status;
   error.details = data;
