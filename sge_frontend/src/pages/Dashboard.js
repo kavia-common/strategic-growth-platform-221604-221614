@@ -5,9 +5,9 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, Users, DollarSign, Activity, Target, 
-  Zap, Heart, TrendingDown, Calendar, Filter,
-  Download, Eye, MoreVertical, ChevronRight, Search,
-  Bell, Settings, ChevronDown
+  Zap, Heart, TrendingDown, Filter,
+  Download, Eye, MoreVertical, Search,
+  Bell, Settings
 } from 'lucide-react';
 import classNames from 'classnames';
 

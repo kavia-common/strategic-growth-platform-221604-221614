@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../services/api';
 import { Send, Plus, MessageSquare, Bot, User, Mic } from 'lucide-react';
 import classNames from 'classnames';
@@ -17,25 +17,7 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
-  useEffect(() => {
-    if (activeConversationId) {
-      fetchMessages(activeConversationId);
-    }
-  }, [activeConversationId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       // Mocking endpoint if not ready, but trying to hit actual backend
       // Adjust endpoint based on backend implementation
@@ -53,6 +35,24 @@ const Chat = () => {
       ]);
       if (!activeConversationId) setActiveConversationId(1);
     }
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    if (activeConversationId) {
+      fetchMessages(activeConversationId);
+    }
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const fetchMessages = async (conversationId) => {
