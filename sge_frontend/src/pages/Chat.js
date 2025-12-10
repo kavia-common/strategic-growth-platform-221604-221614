@@ -41,6 +41,8 @@ const Chat = () => {
 
   useEffect(() => {
     if (activeConversationId) {
+      // Reset before loading to avoid flicker of old messages
+      setMessages([]);
       fetchMessages(activeConversationId);
     }
   }, [activeConversationId]);
@@ -83,30 +85,43 @@ const Chat = () => {
 
     try {
       const result = await sendMessageApi(activeConversationId, tempMessage.content);
-      // result contains: conversation_id, userMessage, assistantMessage
-      if (!activeConversationId && result?.conversation_id) {
+      // Expected shape: { conversation_id, userMessage, assistantMessage }
+      const serverConvId = result?.conversation_id || result?.conversation?.id;
+
+      if (!activeConversationId && serverConvId) {
         // If conversation was created during send, set it as active and refresh conversation list
-        setActiveConversationId(result.conversation_id);
+        setActiveConversationId(serverConvId);
         // Insert the new conversation at top optimistically with a generic title if not in list yet
         setConversations(prev => {
-          const exists = prev.some(c => c.id === result.conversation_id);
+          const exists = prev.some(c => c.id === serverConvId);
           if (exists) return prev;
-          const title = tempMessage.content.substring(0, 30) + (tempMessage.content.length > 30 ? '...' : '');
-          const newConv = { id: result.conversation_id, title: title || 'New Conversation', created_at: new Date().toISOString() };
+          const title =
+            tempMessage.content.substring(0, 30) +
+            (tempMessage.content.length > 30 ? '...' : '');
+          const newConv = {
+            id: serverConvId,
+            title: title || 'New Conversation',
+            created_at: new Date().toISOString(),
+          };
           return [newConv, ...prev];
         });
+        // Also refetch conversations to ensure consistency
+        fetchConversations();
       }
 
       if (result?.assistantMessage) {
         setMessages(prev => {
           // Replace temp with actual stored userMessage if needed, then add assistant
           const withoutTemp = prev.filter(m => m.id !== tempMessage.id);
-          const normalizedUser = result.userMessage ? result.userMessage : tempMessage;
+          const normalizedUser =
+            result.userMessage && typeof result.userMessage === 'object'
+              ? result.userMessage
+              : tempMessage;
           return [...withoutTemp, normalizedUser, result.assistantMessage];
         });
       } else {
         // Fallback to refetch to synchronize state
-        fetchMessages(result?.conversation_id || activeConversationId);
+        fetchMessages(serverConvId || activeConversationId);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -133,12 +148,29 @@ const Chat = () => {
 
     try {
       const created = await createConversationApi('New Conversation');
+      const createdId = created?.id || created?.conversation_id || created?.conversation?.id;
+      const createdTitle = created?.title || created?.conversation?.title || 'New Conversation';
+
       // Replace placeholder with real record
       setConversations(prev => {
         const filtered = prev.filter(c => c.id !== tempId);
-        return [created, ...filtered];
+        const newConv = {
+          id: createdId,
+          title: createdTitle,
+          created_at: created?.created_at || new Date().toISOString(),
+        };
+        return [newConv, ...filtered];
       });
-      setActiveConversationId(created.id);
+
+      if (createdId) {
+        setActiveConversationId(createdId);
+        // Ensure the messages area is reset for the new conversation and load its messages
+        setMessages([]);
+        await fetchMessages(createdId);
+      } else {
+        // If response doesn't contain id, fallback to refresh from server
+        await fetchConversations();
+      }
     } catch (err) {
       console.error('Failed to create conversation:', err);
       // Rollback optimistic addition

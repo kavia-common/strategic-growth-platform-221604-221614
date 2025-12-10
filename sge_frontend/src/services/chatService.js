@@ -6,8 +6,13 @@ import api from './api'
  * Fetch list of conversations for the authenticated user.
  */
 export async function getConversations() {
-  const res = await api.get('/api/chat/conversations')
-  return res.data || []
+  try {
+    const res = await api.get('/api/chat/conversations');
+    return res.data || [];
+  } catch (err) {
+    // Surface error for UI handling
+    throw formatApiError(err, 'Failed to fetch conversations');
+  }
 }
 
 /**
@@ -16,8 +21,12 @@ export async function getConversations() {
  * Fetch messages for a given conversation.
  */
 export async function getMessages(conversationId) {
-  const res = await api.get(`/api/chat/conversations/${conversationId}/messages`)
-  return res.data || []
+  try {
+    const res = await api.get(`/api/chat/conversations/${conversationId}/messages`);
+    return res.data || [];
+  } catch (err) {
+    throw formatApiError(err, 'Failed to fetch messages');
+  }
 }
 
 /**
@@ -27,8 +36,12 @@ export async function getMessages(conversationId) {
  * Optionally accepts a title; backend will default if omitted.
  */
 export async function createConversation(title) {
-  const res = await api.post('/api/chat/conversations', { title })
-  return res.data
+  try {
+    const res = await api.post('/api/chat/conversations', { title });
+    return res.data;
+  } catch (err) {
+    throw formatApiError(err, 'Failed to create conversation');
+  }
 }
 
 /**
@@ -37,9 +50,33 @@ export async function createConversation(title) {
  * Sends a message to a conversation. If conversationId is null, backend may create a new conversation.
  */
 export async function sendMessage(conversationId, content) {
-  const res = await api.post('/api/chat/message', {
-    conversation_id: conversationId,
-    content,
-  })
-  return res.data
+  try {
+    const res = await api.post('/api/chat/message', {
+      conversation_id: conversationId,
+      content,
+    });
+    return res.data;
+  } catch (err) {
+    throw formatApiError(err, 'Failed to send message');
+  }
+}
+
+/**
+ * Convert axios error to a user-friendly error with details preserved.
+ * PRIVATE helper.
+ */
+function formatApiError(err, fallbackMessage) {
+  const status = err?.response?.status;
+  const data = err?.response?.data;
+  const message =
+    data?.message ||
+    data?.error ||
+    data ||
+    err?.message ||
+    fallbackMessage ||
+    'Request failed';
+  const error = new Error(message);
+  error.status = status;
+  error.details = data;
+  return error;
 }
