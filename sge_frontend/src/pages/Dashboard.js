@@ -4,9 +4,9 @@ import {
   BarChart, Bar, Legend, AreaChart, Area
 } from 'recharts';
 import { 
-  TrendingUp, DollarSign, Users, Target, 
-  Eye, Zap, AlertCircle, CheckCircle,
-  Activity, TrendingDown, ArrowUpRight, ArrowDownRight
+  TrendingUp, DollarSign, Target, 
+  Eye, Zap, AlertCircle,
+  Activity, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import '../styles/Dashboard.css';
 
