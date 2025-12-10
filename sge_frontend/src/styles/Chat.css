@@ -84,6 +84,7 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   border: 1px solid transparent;
+  position: relative;
 }
 
 .chat-history-item:hover {
@@ -95,6 +96,14 @@
   background: linear-gradient(135deg, rgba(227, 183, 106, 0.15) 0%, rgba(227, 183, 106, 0.08) 100%);
   border-color: rgba(227, 183, 106, 0.3);
   box-shadow: var(--glow-gold-sm);
+}
+
+.chat-history-clickable {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
 }
 
 .chat-history-icon {
@@ -129,6 +138,106 @@
   font-size: var(--font-xs);
   color: var(--foundatia-cool-grey);
   margin-top: 2px;
+}
+
+/* ==========================================
+   RENAME FUNCTIONALITY
+   ========================================== */
+
+.chat-history-rename-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--foundatia-cool-grey);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.chat-history-item:hover .chat-history-rename-btn {
+  opacity: 1;
+}
+
+.chat-history-rename-btn:hover {
+  background-color: rgba(227, 183, 106, 0.15);
+  color: var(--foundatia-warm-gold);
+  transform: scale(1.05);
+}
+
+.chat-history-rename-btn:active {
+  transform: scale(0.95);
+}
+
+.chat-history-edit-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.chat-history-edit-input {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--foundatia-warm-gold);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-family: var(--font-family);
+  color: var(--foundatia-charcoal);
+  background-color: var(--bg-surface);
+  outline: none;
+  box-shadow: var(--glow-gold-sm);
+}
+
+.chat-history-edit-input:focus {
+  box-shadow: var(--glow-gold-md);
+}
+
+.chat-history-edit-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chat-history-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chat-history-edit-btn.confirm {
+  background-color: var(--foundatia-warm-gold);
+  color: var(--foundatia-charcoal);
+}
+
+.chat-history-edit-btn.confirm:hover {
+  background-color: var(--foundatia-gold-hover);
+  transform: scale(1.1);
+}
+
+.chat-history-edit-btn.cancel {
+  background-color: var(--foundatia-cool-grey);
+  color: var(--bg-surface);
+}
+
+.chat-history-edit-btn.cancel:hover {
+  background-color: var(--foundatia-grey-dark);
+  transform: scale(1.1);
+}
+
+.chat-history-edit-btn:active {
+  transform: scale(0.9);
 }
 
 /* ==========================================
@@ -491,5 +600,9 @@
   
   .chat-input-area {
     padding: var(--spacing-md);
+  }
+  
+  .chat-history-rename-btn {
+    opacity: 1;
   }
 }
