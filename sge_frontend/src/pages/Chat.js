@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Plus, MessageSquare, Bot, User, Mic } from 'lucide-react';
 import '../styles/Chat.css';
-import { 
-  getConversations, 
-  getMessages, 
+import {
+  getConversations,
+  getMessages,
   createConversation as createConversationApi,
-  sendMessage as sendMessageApi
+  sendMessage as sendMessageApi,
 } from '../services/chatService';
+import { useAuth } from '../context/AuthContext';
 
 // PUBLIC_INTERFACE
 /**
@@ -14,6 +15,7 @@ import {
  * Left history column, right conversation area with gold accents
  */
 const Chat = () => {
+  const { session } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -37,57 +39,53 @@ const Chat = () => {
   };
 
   const fetchConversations = useCallback(async () => {
+    // Guard: no session means we shouldn't call protected endpoints
+    if (!session) {
+      return;
+    }
     try {
       const list = await getConversations();
-      
-      setConversations(prev => {
+
+      setConversations((prev) => {
         const currentActiveId = activeConversationIdRef.current;
-        
+
         // Preserve optimistic/temp conversations
-        const temps = prev.filter(c => c.id.toString().startsWith('temp-'));
-        const listIds = new Set(list.map(c => c.id));
-        
-        // Also ensure we preserve the currently active conversation if it's missing from the server list
-        // This handles cases where a new conversation was created but eventual consistency 
-        // or race conditions mean it's not in the 'list' yet.
+        const temps = prev.filter((c) => c.id.toString().startsWith('temp-'));
+        const listIds = new Set(list.map((c) => c.id));
+
+        // Preserve active conversation if not in server list
         let preservedActive = null;
         if (currentActiveId && !listIds.has(currentActiveId)) {
-          preservedActive = prev.find(c => c.id === currentActiveId);
+          preservedActive = prev.find((c) => c.id === currentActiveId);
         }
 
-        const uniqueTemps = temps.filter(t => !listIds.has(t.id));
-        
+        const uniqueTemps = temps.filter((t) => !listIds.has(t.id));
+
         let newList = [...uniqueTemps, ...list];
-        
-        // If we found a valid active conversation in local state that is missing from server list, add it back
-        if (preservedActive && !newList.some(c => c.id === preservedActive.id)) {
-           // Put it at the top if it's likely new, or just prepend
-           newList = [preservedActive, ...newList];
+
+        if (preservedActive && !newList.some((c) => c.id === preservedActive.id)) {
+          newList = [preservedActive, ...newList];
         }
-        
+
         return newList;
       });
-      
+
       // Update active ID selection logic
-      setActiveConversationId(prev => {
-        // If we just created this conversation, keep it selected
+      setActiveConversationId((prev) => {
         if (justCreatedConversationId.current && prev === justCreatedConversationId.current) {
           return prev;
         }
 
-        // If nothing selected and we have options, select first
         if (!prev && list.length > 0) return list[0].id;
-        
-        // If we have a selection, keep it. We trust the setConversations logic above
-        // to have preserved it if it was valid. We avoid aggressive auto-switching 
-        // to prevent UI jumping.
+
         return prev;
       });
     } catch (error) {
       console.error('Error fetching conversations:', error);
-      showError('Failed to load conversations');
+      const details = error?.details || error?.message || '';
+      showError(`Failed to load conversations${details ? `: ${details}` : ''}`);
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     fetchConversations();
@@ -95,19 +93,14 @@ const Chat = () => {
 
   useEffect(() => {
     if (activeConversationId) {
-      // Don't clear messages immediately to prevent flash if it's the same convo re-rendering
-      // But here activeConversationId changed.
-      // Check if it's a temp id, if so clear messages (it's new)
       if (activeConversationId.toString().startsWith('temp-')) {
-         setMessages([]);
+        setMessages([]);
       } else {
-         // Check if we just created this conversation to skip fetch/loading
-         if (justCreatedConversationId.current === activeConversationId) {
-           // Reset the ref so future refetches (e.g. clicking away and back) work
-           justCreatedConversationId.current = null;
-           return;
-         }
-         fetchMessages(activeConversationId);
+        if (justCreatedConversationId.current === activeConversationId) {
+          justCreatedConversationId.current = null;
+          return;
+        }
+        fetchMessages(activeConversationId);
       }
     }
   }, [activeConversationId]);
@@ -121,6 +114,7 @@ const Chat = () => {
   };
 
   const fetchMessages = async (conversationId) => {
+    if (!session) return;
     if (!conversationId) return;
     if (conversationId.toString().startsWith('temp-')) return;
 
@@ -130,7 +124,8 @@ const Chat = () => {
       setMessages(list);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      showError('Failed to load messages');
+      const details = error?.details || error?.message || '';
+      showError(`Failed to load messages${details ? `: ${details}` : ''}`);
     } finally {
       setLoading(false);
     }
@@ -138,6 +133,10 @@ const Chat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    if (!session) {
+      showError('You must be signed in to send messages');
+      return;
+    }
     if (!newMessage.trim()) return;
 
     const tempMessage = {
@@ -147,37 +146,37 @@ const Chat = () => {
       created_at: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, tempMessage]);
+    setMessages((prev) => [...prev, tempMessage]);
     setNewMessage('');
     setSending(true);
 
     try {
-      // If activeConversationId is temp, send null to create new
       const isTempId = activeConversationId && activeConversationId.toString().startsWith('temp-');
       const targetId = isTempId ? null : activeConversationId;
 
       const result = await sendMessageApi(targetId, tempMessage.content);
-      
-      // Expected shape: { conversation_id, user_message, assistant_message }
+
       const { conversation_id, user_message, assistant_message } = result || {};
 
       if (!conversation_id) {
-          throw new Error('Invalid response from server');
+        throw new Error('Invalid response from server');
       }
 
       if ((!activeConversationId || isTempId) && conversation_id) {
-        // IMPORTANT: Set this ref BEFORE updating state to prevent fetchMessages from triggering
         justCreatedConversationId.current = conversation_id;
         setActiveConversationId(conversation_id);
-        
-        // Update conversation list item from temp to real without losing state
-        setConversations(prev => {
+
+        setConversations((prev) => {
           if (isTempId) {
-             return prev.map(c => c.id === activeConversationId ? { ...c, id: conversation_id, title: tempMessage.content.substring(0,30) } : c);
+            return prev.map((c) =>
+              c.id === activeConversationId
+                ? { ...c, id: conversation_id, title: tempMessage.content.substring(0, 30) }
+                : c
+            );
           }
-          const exists = prev.some(c => c.id === conversation_id);
+          const exists = prev.some((c) => c.id === conversation_id);
           if (exists) return prev;
-          
+
           const newConv = {
             id: conversation_id,
             title: tempMessage.content.substring(0, 30) || 'New Conversation',
@@ -188,26 +187,19 @@ const Chat = () => {
       }
 
       if (assistant_message) {
-        setMessages(prev => {
-          // Remove the temp user message
-          const withoutTemp = prev.filter(m => m.id !== tempMessage.id);
-          
-          // Use the real user message from server (if available) or temp
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((m) => m.id !== tempMessage.id);
           const realUserMsg = user_message || tempMessage;
-          
-          // Append real user msg + assistant msg. Do NOT clear existing history.
           return [...withoutTemp, realUserMsg, assistant_message];
         });
       } else {
-        // Fallback
         fetchMessages(conversation_id || activeConversationId);
       }
     } catch (error) {
       console.error('Error sending message:', error);
       const msg = error.message || error.toString();
       showError(`Failed to send message: ${msg}`);
-      // Rollback: remove message bubble but restore input text so user doesn't lose it
-      setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
+      setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       setNewMessage(tempMessage.content);
     } finally {
       setSending(false);
@@ -215,7 +207,10 @@ const Chat = () => {
   };
 
   const createNewChat = async () => {
-    // Optimistic placeholder
+    if (!session) {
+      showError('You must be signed in to create a conversation');
+      return;
+    }
     const tempId = `temp-${Date.now()}`;
     const placeholder = {
       id: tempId,
@@ -223,32 +218,25 @@ const Chat = () => {
       created_at: new Date().toISOString(),
     };
 
-    setConversations(prev => [placeholder, ...prev]);
+    setConversations((prev) => [placeholder, ...prev]);
     setActiveConversationId(tempId);
     setMessages([]);
 
     try {
       const created = await createConversationApi('New Conversation');
-      // created shape: { id, title, created_at }
-      
+
       if (created?.id) {
-        // Replace placeholder with real record
-        setConversations(prev => prev.map(c => c.id === tempId ? created : c));
+        setConversations((prev) => prev.map((c) => (c.id === tempId ? created : c)));
         justCreatedConversationId.current = created.id;
         setActiveConversationId(created.id);
-        // Messages are empty for new chat
         setMessages([]);
       } else {
-        // Fallback
         await fetchConversations();
       }
     } catch (err) {
       console.error('Failed to create conversation:', err);
       const msg = err.message || err.toString();
       showError(`Failed to create conversation: ${msg}`);
-      // Do NOT rollback optimistic addition to preserve state as requested
-      // setConversations(prev => prev.filter(c => c.id !== tempId));
-      // setActiveConversationId(prev => conversations[0]?.id || null);
     }
   };
 
@@ -266,19 +254,21 @@ const Chat = () => {
     <div className="chat-page">
       {/* Toast Notification */}
       {error && (
-        <div style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          backgroundColor: '#EF4444',
-          color: 'white',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          zIndex: 1000,
-          animation: 'fadeIn 0.3s ease',
-          fontWeight: 500
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            backgroundColor: '#EF4444',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            zIndex: 1000,
+            animation: 'fadeIn 0.3s ease',
+            fontWeight: 500,
+          }}
+        >
           {error}
         </div>
       )}
@@ -286,17 +276,14 @@ const Chat = () => {
       {/* Left History Sidebar */}
       <div className="chat-history-sidebar">
         <div className="chat-history-header">
-          <button 
-            onClick={createNewChat}
-            className="chat-new-conversation-btn"
-          >
+          <button onClick={createNewChat} className="chat-new-conversation-btn">
             <Plus size={18} strokeWidth={2.5} />
             New Conversation
           </button>
         </div>
-        
+
         <div className="chat-history-list">
-          {conversations.map(chat => (
+          {conversations.map((chat) => (
             <div
               key={chat.id}
               onClick={() => setActiveConversationId(chat.id)}
@@ -320,17 +307,18 @@ const Chat = () => {
       <div className="chat-conversation-area">
         <div className="chat-messages-container">
           <div className="chat-messages-inner">
-            
             {messages.length === 0 && loading ? (
               <div className="chat-empty-state">
-                <div style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  border: '3px solid rgba(227, 183, 106, 0.2)',
-                  borderTopColor: '#E3B76A',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    border: '3px solid rgba(227, 183, 106, 0.2)',
+                    borderTopColor: '#E3B76A',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
               </div>
             ) : messages.length === 0 ? (
               <div className="chat-empty-state">
@@ -343,16 +331,20 @@ const Chat = () => {
             ) : (
               <>
                 {messages.map((msg, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className={`chat-message ${msg.role === 'user' ? 'user' : 'ai'}`}
                   >
-                    <div className={`chat-message-avatar ${msg.role === 'user' ? 'user' : 'ai'}`}>
+                    <div
+                      className={`chat-message-avatar ${msg.role === 'user' ? 'user' : 'ai'}`}
+                    >
                       {msg.role === 'user' ? <User size={18} /> : <Bot size={18} />}
                     </div>
-                    
+
                     <div className="chat-message-content">
-                      <div className={`chat-message-bubble ${msg.role === 'user' ? 'user' : 'ai'}`}>
+                      <div
+                        className={`chat-message-bubble ${msg.role === 'user' ? 'user' : 'ai'}`}
+                      >
                         {msg.content}
                       </div>
                       {msg.created_at && (
@@ -363,7 +355,7 @@ const Chat = () => {
                     </div>
                   </div>
                 ))}
-                
+
                 {sending && (
                   <div className="chat-message ai">
                     <div className="chat-message-avatar ai">
@@ -382,7 +374,7 @@ const Chat = () => {
                 )}
               </>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
         </div>
