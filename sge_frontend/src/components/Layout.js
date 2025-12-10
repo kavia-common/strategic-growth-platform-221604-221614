@@ -2,11 +2,13 @@ import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, MessageSquare, LogOut, User } from 'lucide-react';
+import '../styles/Sidebar.css';
+import '../styles/Layout.css';
 
 // PUBLIC_INTERFACE
 /**
- * Main layout component with themed sidebar navigation
- * Provides navigation between Dashboard and AI Chat with Ocean Professional theme
+ * Main layout component with Foundatia-themed sidebar navigation
+ * Provides navigation between Dashboard and AI Chat with charcoal sidebar and gold accents
  */
 const Layout = () => {
   const { user, signOut } = useAuth();
@@ -24,20 +26,27 @@ const Layout = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
-      <aside className="sidebar-modern">
-        {/* Brand Section */}
+    <div className="layout-container">
+      {/* Foundatia Sidebar */}
+      <aside className="sidebar-foundatia">
+        {/* Brand Section with Logo and Tagline */}
         <div className="sidebar-brand">
           <Link 
             to="/dashboard" 
             className="sidebar-brand-link"
-            aria-label="SGE Platform Home"
+            aria-label="Foundatia SGE Home"
           >
-            <span className="sidebar-brand-icon">SGE</span>
-            <span className="sidebar-brand-text">Platform</span>
+            <div className="sidebar-logo">
+              <span className="sidebar-logo-text">F</span>
+            </div>
+            <p className="sidebar-tagline">
+              Reveal
+              <span className="sidebar-tagline-separator">•</span>
+              Reframe
+              <span className="sidebar-tagline-separator">•</span>
+              Realign
+            </p>
           </Link>
-          <div className="sidebar-version-badge">v1.0</div>
         </div>
         
         {/* Navigation */}
@@ -55,7 +64,7 @@ const Layout = () => {
                   aria-current={isActive ? 'page' : undefined}
                   tabIndex={0}
                 >
-                  <div className="sidebar-nav-item-indicator-bar" aria-hidden="true" />
+                  <div className="sidebar-nav-item-indicator" aria-hidden="true" />
                   <div className="sidebar-nav-item-icon">
                     <Icon size={20} strokeWidth={2.5} />
                   </div>
@@ -72,7 +81,7 @@ const Layout = () => {
           
           <div className="sidebar-user">
             <div className="sidebar-user-avatar">
-              <User size={16} strokeWidth={2.5} />
+              <User size={18} strokeWidth={2.5} />
             </div>
             <div className="sidebar-user-info">
               <p className="sidebar-user-email">{user?.email}</p>
@@ -92,23 +101,23 @@ const Layout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="layout-main">
         {/* Topbar */}
         <header className="layout-topbar">
-          <div className="flex items-center gap-4">
+          <div>
             <h2 className="layout-topbar-title">
               {navItems.find(item => location.pathname.startsWith(item.path))?.label || 'Dashboard'}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="layout-topbar-theme-tag">
-              Ocean Professional
+          <div className="layout-topbar-actions">
+            <div className="layout-theme-badge">
+              Foundatia
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-[var(--bg-primary)]">
+        <main className="layout-content">
           <Outlet />
         </main>
       </div>

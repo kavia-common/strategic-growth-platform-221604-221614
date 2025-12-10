@@ -1,0 +1,109 @@
+/* 
+ * Layout Component - Foundatia Brand Styling
+ * Main application layout with topbar
+ */
+
+.layout-container {
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  overflow: hidden;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ==========================================
+   TOPBAR
+   ========================================== */
+
+.layout-topbar {
+  height: 64px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  z-index: var(--z-sticky);
+}
+
+.layout-topbar-title {
+  font-size: var(--font-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.layout-topbar-subtitle {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.layout-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.layout-theme-badge {
+  font-size: var(--font-xs);
+  color: var(--foundatia-warm-gold);
+  font-weight: var(--font-semibold);
+  padding: 6px var(--spacing-md);
+  background-color: rgba(227, 183, 106, 0.1);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(227, 183, 106, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================
+   MAIN CONTENT AREA
+   ========================================== */
+
+.layout-content {
+  flex: 1;
+  overflow: auto;
+  background-color: var(--bg-primary);
+  position: relative;
+}
+
+.layout-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.layout-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.layout-content::-webkit-scrollbar-thumb {
+  background: rgba(176, 180, 184, 0.3);
+  border-radius: 4px;
+}
+
+.layout-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(176, 180, 184, 0.5);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+  .layout-topbar {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .layout-topbar-title {
+    font-size: var(--font-lg);
+  }
+}

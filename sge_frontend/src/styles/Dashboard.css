@@ -1,0 +1,602 @@
+/* 
+ * Dashboard Page - Foundatia Brand Styling
+ * Sections: Executive Metrics, Insights Panel, Momentum Chart, Framework Cards, Strategic Projects
+ */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--foundatia-off-white) 0%, #FAFAFA 100%);
+  padding: var(--spacing-lg);
+}
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   SECTION HEADERS
+   ========================================== */
+
+.dashboard-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.dashboard-section-title {
+  font-size: var(--font-2xl);
+  font-weight: var(--font-bold);
+  color: var(--foundatia-charcoal);
+  margin: 0;
+}
+
+.dashboard-section-subtitle {
+  font-size: var(--font-sm);
+  color: var(--foundatia-cool-grey);
+  margin-top: 4px;
+}
+
+/* ==========================================
+   EXECUTIVE METRIC CARDS (4 Equal Cards)
+   ========================================== */
+
+.executive-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 1024px) {
+  .executive-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.metric-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  padding: var(--spacing-lg);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.metric-card:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md), var(--glow-gold-sm);
+  transform: translateY(-2px);
+}
+
+.metric-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(227, 183, 106, 0.15) 0%, rgba(227, 183, 106, 0.05) 100%);
+  color: var(--foundatia-warm-gold);
+}
+
+.metric-label {
+  font-size: var(--font-sm);
+  color: var(--foundatia-cool-grey);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metric-value {
+  font-size: var(--font-3xl);
+  font-weight: var(--font-bold);
+  color: var(--foundatia-charcoal);
+  line-height: var(--line-height-tight);
+}
+
+.metric-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-xs);
+  font-weight: var(--font-semibold);
+  padding: 4px var(--spacing-sm);
+  border-radius: var(--radius-full);
+  margin-top: var(--spacing-sm);
+}
+
+.metric-change.positive {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.metric-change.negative {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+}
+
+/* ==========================================
+   TWO-COLUMN LAYOUT (Insights + Momentum)
+   ========================================== */
+
+.dashboard-two-column {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 1024px) {
+  .dashboard-two-column {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+/* ==========================================
+   INSIGHTS PANEL (Scrollable List with Gold Dots)
+   ========================================== */
+
+.insights-panel {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  max-height: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.insights-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--foundatia-warm-gold) 0%, var(--foundatia-gold-hover) 100%);
+  color: var(--foundatia-charcoal);
+  box-shadow: 0 4px 12px rgba(227, 183, 106, 0.3);
+}
+
+.insights-title {
+  font-size: var(--font-lg);
+  font-weight: var(--font-semibold);
+  color: var(--foundatia-charcoal);
+  margin: 0;
+}
+
+.insights-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.insights-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.insights-list::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 2px;
+}
+
+.insights-list::-webkit-scrollbar-thumb {
+  background: rgba(227, 183, 106, 0.3);
+  border-radius: 2px;
+}
+
+.insight-item {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+}
+
+.insight-item:hover {
+  background-color: rgba(227, 183, 106, 0.05);
+}
+
+.insight-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--foundatia-warm-gold);
+  flex-shrink: 0;
+  margin-top: 6px;
+  box-shadow: 0 0 8px rgba(227, 183, 106, 0.5);
+}
+
+.insight-content {
+  flex: 1;
+}
+
+.insight-text {
+  font-size: var(--font-sm);
+  color: var(--foundatia-charcoal);
+  line-height: var(--line-height-relaxed);
+  margin: 0 0 4px 0;
+}
+
+.insight-meta {
+  font-size: var(--font-xs);
+  color: var(--foundatia-cool-grey);
+}
+
+/* ==========================================
+   MOMENTUM CHART (Smooth Gold Line, Grey Grid)
+   ========================================== */
+
+.momentum-chart-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.momentum-chart-card:hover {
+  box-shadow: var(--shadow-md), var(--glow-gold-sm);
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.chart-title {
+  font-size: var(--font-lg);
+  font-weight: var(--font-semibold);
+  color: var(--foundatia-charcoal);
+  margin: 0;
+}
+
+.chart-subtitle {
+  font-size: var(--font-sm);
+  color: var(--foundatia-cool-grey);
+  margin-top: 4px;
+}
+
+.chart-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.chart-filter {
+  padding: 6px var(--spacing-md);
+  font-size: var(--font-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.chart-filter:hover {
+  border-color: var(--border-subtle);
+}
+
+.chart-filter:focus {
+  outline: 2px solid rgba(227, 183, 106, 0.3);
+  outline-offset: 2px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  position: relative;
+}
+
+/* ==========================================
+   FRAMEWORK CARDS (Reveal/Reframe/Realign)
+   ========================================== */
+
+.framework-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 1024px) {
+  .framework-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.framework-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
+  padding: var(--spacing-xl);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-smooth);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.framework-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--foundatia-warm-gold) 0%, var(--foundatia-gold-hover) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.framework-card:hover {
+  border-color: var(--foundatia-warm-gold);
+  box-shadow: var(--shadow-lg), var(--glow-gold-md);
+  transform: translateY(-4px);
+}
+
+.framework-card:hover::before {
+  opacity: 1;
+}
+
+.framework-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(227, 183, 106, 0.2) 0%, rgba(227, 183, 106, 0.08) 100%);
+  color: var(--foundatia-warm-gold);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 4px 12px rgba(227, 183, 106, 0.2);
+}
+
+.framework-card-title {
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
+  color: var(--foundatia-charcoal);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.framework-card-description {
+  font-size: var(--font-sm);
+  color: var(--foundatia-cool-grey);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-md);
+  flex: 1;
+}
+
+.framework-card-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-default);
+}
+
+.framework-stat-label {
+  font-size: var(--font-xs);
+  color: var(--foundatia-cool-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.framework-stat-value {
+  font-size: var(--font-lg);
+  font-weight: var(--font-bold);
+  color: var(--foundatia-warm-gold);
+}
+
+/* ==========================================
+   STRATEGIC PROJECTS TABLE (Colored Status Pills)
+   ========================================== */
+
+.strategic-projects-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.projects-table thead {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-md);
+}
+
+.projects-table th {
+  padding: var(--spacing-md);
+  font-size: var(--font-xs);
+  font-weight: var(--font-semibold);
+  color: var(--foundatia-cool-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  border-bottom: 2px solid var(--border-default);
+}
+
+.projects-table td {
+  padding: var(--spacing-md);
+  font-size: var(--font-sm);
+  color: var(--foundatia-charcoal);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.projects-table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.projects-table tbody tr:hover {
+  background-color: rgba(227, 183, 106, 0.04);
+}
+
+.projects-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px var(--spacing-md);
+  font-size: var(--font-xs);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-pill.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.status-pill.pending {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #D97706;
+}
+
+.status-pill.in-progress {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #2563EB;
+}
+
+.status-pill.completed {
+  background-color: rgba(107, 114, 128, 0.15);
+  color: #4B5563;
+}
+
+.status-pill.on-hold {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #DC2626;
+}
+
+.status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.project-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-xs);
+  font-weight: var(--font-medium);
+}
+
+.priority-high {
+  color: #DC2626;
+}
+
+.priority-medium {
+  color: #D97706;
+}
+
+.priority-low {
+  color: #059669;
+}
+
+/* ==========================================
+   ADDITIONAL SGE VISUALIZATIONS
+   ========================================== */
+
+.sge-visualizations-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 1024px) {
+  .sge-visualizations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.visualization-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.visualization-card:hover {
+  box-shadow: var(--shadow-md), var(--glow-gold-sm);
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .dashboard-page {
+    padding: var(--spacing-md);
+  }
+  
+  .executive-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-two-column {
+    grid-template-columns: 1fr;
+  }
+  
+  .framework-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sge-visualizations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .projects-table {
+    font-size: var(--font-xs);
+  }
+  
+  .projects-table th,
+  .projects-table td {
+    padding: var(--spacing-sm);
+  }
+}
