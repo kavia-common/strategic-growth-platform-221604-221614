@@ -25,15 +25,25 @@ const Chat = () => {
   const fetchConversations = useCallback(async () => {
     try {
       const list = await getConversations();
-      setConversations(list);
-      if (list.length > 0 && !activeConversationId) {
-        setActiveConversationId(list[0].id);
-      }
+      // Preserve optimistic conversations (starting with temp-)
+      setConversations(prev => {
+        const temps = prev.filter(c => c.id.toString().startsWith('temp-'));
+        // Avoid duplicates if for some reason temp matches server id (unlikely)
+        const listIds = new Set(list.map(c => c.id));
+        const uniqueTemps = temps.filter(t => !listIds.has(t.id));
+        return [...uniqueTemps, ...list];
+      });
+      
+      // Only set active if none selected and list available
+      setActiveConversationId(prev => {
+        if (!prev && list.length > 0) return list[0].id;
+        return prev;
+      });
     } catch (error) {
       console.error('Error fetching conversations:', error);
       // Keep current state; show no-op if failing
     }
-  }, [activeConversationId]);
+  }, []);
 
   useEffect(() => {
     fetchConversations();
@@ -42,6 +52,7 @@ const Chat = () => {
   useEffect(() => {
     if (activeConversationId) {
       // Reset before loading to avoid flicker of old messages
+      // Only clear if switching to a different ID, but here activeConversationId changed so yes.
       setMessages([]);
       fetchMessages(activeConversationId);
     }
@@ -57,6 +68,12 @@ const Chat = () => {
 
   const fetchMessages = async (conversationId) => {
     if (!conversationId) return;
+    // Don't fetch messages for temporary conversations
+    if (conversationId.toString().startsWith('temp-')) {
+      setMessages([]);
+      return;
+    }
+
     setLoading(true);
     try {
       const list = await getMessages(conversationId);
@@ -105,8 +122,7 @@ const Chat = () => {
           };
           return [newConv, ...prev];
         });
-        // Also refetch conversations to ensure consistency
-        fetchConversations();
+        // Do NOT fetchConversations() here immediately to avoid race condition where server listing is stale
       }
 
       if (result?.assistantMessage) {
@@ -127,6 +143,8 @@ const Chat = () => {
       console.error('Error sending message:', error);
       // Rollback temp state by removing temp if error
       setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
+      // Restore input text so user doesn't lose it
+      setNewMessage(tempMessage.content);
     } finally {
       setSending(false);
     }
