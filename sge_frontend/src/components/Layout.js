@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, MessageSquare, LogOut, User } from 'lucide-react';
@@ -14,6 +14,7 @@ const Layout = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [imgError, setImgError] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -37,7 +38,16 @@ const Layout = () => {
             aria-label="Foundatia SGE Home"
           >
             <div className="sidebar-logo">
-              <span className="sidebar-logo-text">F</span>
+              {!imgError ? (
+                <img 
+                  src={process.env.PUBLIC_URL + '/logo.png'} 
+                  alt="Foundatia Logo" 
+                  className="sidebar-logo-img"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span className="sidebar-logo-text">F</span>
+              )}
             </div>
             <p className="sidebar-tagline">
               Reveal
