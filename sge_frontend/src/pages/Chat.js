@@ -48,6 +48,11 @@ const Chat = () => {
       
       // Only set active if none selected and list available
       setActiveConversationId(prev => {
+        // If we just created this conversation, keep it selected even if not in list yet
+        if (justCreatedConversationId.current && prev === justCreatedConversationId.current) {
+          return prev;
+        }
+
         if (!prev && list.length > 0) return list[0].id;
         // Check if prev exists in list or is temp
         const stillExists = list.find(c => c.id === prev) || prev?.toString().startsWith('temp-');
@@ -291,7 +296,7 @@ const Chat = () => {
         <div className="chat-messages-container">
           <div className="chat-messages-inner">
             
-            {loading ? (
+            {messages.length === 0 && loading ? (
               <div className="chat-empty-state">
                 <div style={{ 
                   width: '40px', 
