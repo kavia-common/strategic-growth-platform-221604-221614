@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import api from '../services/api';
 import { Send, Plus, MessageSquare, Bot, User, Mic } from 'lucide-react';
 import '../styles/Chat.css';
+import { 
+  getConversations, 
+  getMessages, 
+  createConversation as createConversationApi,
+  sendMessage as sendMessageApi
+} from '../services/chatService';
 
 // PUBLIC_INTERFACE
 /**
@@ -19,20 +24,14 @@ const Chat = () => {
 
   const fetchConversations = useCallback(async () => {
     try {
-      const response = await api.get('/api/chat/conversations');
-      setConversations(response.data);
-      if (response.data.length > 0 && !activeConversationId) {
-        setActiveConversationId(response.data[0].id);
+      const list = await getConversations();
+      setConversations(list);
+      if (list.length > 0 && !activeConversationId) {
+        setActiveConversationId(list[0].id);
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
-      // Fallback mock data
-      setConversations([
-        { id: 1, title: 'Strategic Growth Planning', created_at: new Date().toISOString() },
-        { id: 2, title: 'Market Analysis Q4', created_at: new Date().toISOString() },
-        { id: 3, title: 'Competitive Insights', created_at: new Date().toISOString() }
-      ]);
-      if (!activeConversationId) setActiveConversationId(1);
+      // Keep current state; show no-op if failing
     }
   }, [activeConversationId]);
 
@@ -55,27 +54,13 @@ const Chat = () => {
   };
 
   const fetchMessages = async (conversationId) => {
+    if (!conversationId) return;
     setLoading(true);
     try {
-      const response = await api.get(`/api/chat/conversations/${conversationId}/messages`);
-      setMessages(response.data);
+      const list = await getMessages(conversationId);
+      setMessages(list);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      // Fallback mock
-      setMessages([
-        { 
-          id: 1, 
-          role: 'user', 
-          content: 'What are the key growth opportunities for our business?', 
-          created_at: new Date().toISOString() 
-        },
-        { 
-          id: 2, 
-          role: 'assistant', 
-          content: 'Based on the strategic analysis, there are three key growth opportunities: 1) Expanding into emerging markets with high demand, 2) Developing innovative product lines that address unmet customer needs, and 3) Leveraging partnerships to accelerate market penetration. Each of these strategies aligns with your core competencies and can drive sustainable growth.', 
-          created_at: new Date().toISOString() 
-        }
-      ]);
     } finally {
       setLoading(false);
     }
@@ -86,10 +71,10 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     const tempMessage = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`,
       role: 'user',
       content: newMessage,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
 
     setMessages(prev => [...prev, tempMessage]);
@@ -97,41 +82,73 @@ const Chat = () => {
     setSending(true);
 
     try {
-      const response = await api.post('/api/chat/message', {
-        conversation_id: activeConversationId,
-        content: tempMessage.content
-      });
+      const result = await sendMessageApi(activeConversationId, tempMessage.content);
+      // result contains: conversation_id, userMessage, assistantMessage
+      if (!activeConversationId && result?.conversation_id) {
+        // If conversation was created during send, set it as active and refresh conversation list
+        setActiveConversationId(result.conversation_id);
+        // Insert the new conversation at top optimistically with a generic title if not in list yet
+        setConversations(prev => {
+          const exists = prev.some(c => c.id === result.conversation_id);
+          if (exists) return prev;
+          const title = tempMessage.content.substring(0, 30) + (tempMessage.content.length > 30 ? '...' : '');
+          const newConv = { id: result.conversation_id, title: title || 'New Conversation', created_at: new Date().toISOString() };
+          return [newConv, ...prev];
+        });
+      }
 
-      if (response.data && response.data.role === 'assistant') {
-        setMessages(prev => [...prev, response.data]);
+      if (result?.assistantMessage) {
+        setMessages(prev => {
+          // Replace temp with actual stored userMessage if needed, then add assistant
+          const withoutTemp = prev.filter(m => m.id !== tempMessage.id);
+          const normalizedUser = result.userMessage ? result.userMessage : tempMessage;
+          return [...withoutTemp, normalizedUser, result.assistantMessage];
+        });
       } else {
-        fetchMessages(activeConversationId);
+        // Fallback to refetch to synchronize state
+        fetchMessages(result?.conversation_id || activeConversationId);
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Mock response
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          role: 'assistant',
-          content: "I understand you're asking about: " + tempMessage.content + ". Let me provide you with strategic insights based on available data and best practices.",
-          created_at: new Date().toISOString()
-        }]);
-      }, 1000);
+      // Rollback temp state by removing temp if error
+      setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
     } finally {
       setSending(false);
     }
   };
 
   const createNewChat = async () => {
-    const newChat = { 
-      id: Date.now(), 
-      title: 'New Conversation', 
-      created_at: new Date().toISOString() 
+    // Optimistic placeholder
+    const tempId = `temp-${Date.now()}`;
+    const placeholder = {
+      id: tempId,
+      title: 'New Conversation',
+      created_at: new Date().toISOString(),
     };
-    setConversations([newChat, ...conversations]);
-    setActiveConversationId(newChat.id);
+
+    // Optimistically insert at top and set active
+    setConversations(prev => [placeholder, ...prev]);
+    setActiveConversationId(tempId);
     setMessages([]);
+
+    try {
+      const created = await createConversationApi('New Conversation');
+      // Replace placeholder with real record
+      setConversations(prev => {
+        const filtered = prev.filter(c => c.id !== tempId);
+        return [created, ...filtered];
+      });
+      setActiveConversationId(created.id);
+    } catch (err) {
+      console.error('Failed to create conversation:', err);
+      // Rollback optimistic addition
+      setConversations(prev => prev.filter(c => c.id !== tempId));
+      // Keep UI usable: reset active to previous first if exists
+      setActiveConversationId(prev => {
+        const first = conversations[0]?.id;
+        return first || null;
+      });
+    }
   };
 
   const handleMicClick = () => {
