@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, Sparkles } from 'lucide-react';
+import '../styles/Login.css';
 
 // PUBLIC_INTERFACE
 /**

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Building, Eye, EyeOff, ArrowLeft, Sparkles, CheckCircle, XCircle } from 'lucide-react';
+import '../styles/Signup.css';
 
 /**
  * PUBLIC_INTERFACE

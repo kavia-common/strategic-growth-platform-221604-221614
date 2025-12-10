@@ -5,7 +5,7 @@ import {
   BarChart3, Lock, Clock, Sparkles, Target, 
   Globe, Award 
 } from 'lucide-react';
-import styles from './Landing.module.css';
+import '../styles/Landing.css';
 
 // PUBLIC_INTERFACE
 /**
@@ -73,98 +73,98 @@ const Landing = () => {
   ];
 
   return (
-    <div className={styles.landingPage}>
+    <div className="landingPage">
       {/* Navigation */}
-      <header className={styles.header}>
-        <div className={styles.headerContainer}>
-          <div className={styles.brandSection}>
-            <span className={styles.brandLogo}>SGE</span>
-            <span className={styles.brandName}>Platform</span>
+      <header className="header">
+        <div className="headerContainer">
+          <div className="brandSection">
+            <span className="brandLogo">SGE</span>
+            <span className="brandName">Platform</span>
           </div>
-          <div className={styles.navActions}>
-            <Link to="/login" className={styles.navLink}>
+          <div className="navActions">
+            <Link to="/login" className="navLink">
               Log in
             </Link>
-            <Link to="/signup" className={styles.navButton}>
+            <Link to="/signup" className="navButton">
               Get Started
             </Link>
           </div>
         </div>
       </header>
 
-      <main className={styles.main}>
+      <main className="main">
         {/* Hero Section - Refined with gradient */}
-        <section className={styles.heroSection}>
+        <section className="heroSection">
           {/* Decorative elements */}
-          <div className={styles.heroDecorative}>
-            <div className={styles.heroBlob1}></div>
-            <div className={styles.heroBlob2}></div>
+          <div className="heroDecorative">
+            <div className="heroBlob1"></div>
+            <div className="heroBlob2"></div>
           </div>
 
-          <div className={styles.heroContainer}>
-            <div className={styles.heroBadge}>
-              <Globe size={16} className={styles.heroBadgeIcon} />
-              <span className={styles.heroBadgeText}>Trusted by leading organizations worldwide</span>
+          <div className="heroContainer">
+            <div className="heroBadge">
+              <Globe size={16} className="heroBadgeIcon" />
+              <span className="heroBadgeText">Trusted by leading organizations worldwide</span>
             </div>
 
-            <h1 className={styles.heroTitle}>
+            <h1 className="heroTitle">
               Drive Growth with
               <br />
-              <span className={styles.heroTitleAccent}>AI-Powered Intelligence</span>
+              <span className="heroTitleAccent">AI-Powered Intelligence</span>
             </h1>
             
-            <p className={styles.heroSubtitle}>
+            <p className="heroSubtitle">
               Transform data into decisions. Empower your team with enterprise-grade analytics, AI insights, and real-time collaboration.
             </p>
 
-            <div className={styles.heroActions}>
-              <Link to="/signup" className={styles.heroButtonPrimary}>
+            <div className="heroActions">
+              <Link to="/signup" className="heroButtonPrimary">
                 Start Free Trial <ArrowRight size={20} />
               </Link>
-              <Link to="/login" className={styles.heroButtonSecondary}>
+              <Link to="/login" className="heroButtonSecondary">
                 Sign In
               </Link>
             </div>
 
             {/* Value Props Strip */}
-            <div className={styles.valueStrip}>
-              <div className={styles.valueItem}>
-                <div className={styles.valueNumber}>99.9%</div>
-                <div className={styles.valueLabel}>Uptime SLA</div>
+            <div className="valueStrip">
+              <div className="valueItem">
+                <div className="valueNumber">99.9%</div>
+                <div className="valueLabel">Uptime SLA</div>
               </div>
-              <div className={styles.valueItem}>
-                <div className={styles.valueNumber}>24/7</div>
-                <div className={styles.valueLabel}>Expert Support</div>
+              <div className="valueItem">
+                <div className="valueNumber">24/7</div>
+                <div className="valueLabel">Expert Support</div>
               </div>
-              <div className={styles.valueItem}>
-                <div className={styles.valueNumber}>SOC 2</div>
-                <div className={styles.valueLabel}>Certified Security</div>
+              <div className="valueItem">
+                <div className="valueNumber">SOC 2</div>
+                <div className="valueLabel">Certified Security</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Features Section - 6 items */}
-        <section className={styles.featuresSection}>
-          <div className={styles.featuresContainer}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Everything You Need to Succeed</h2>
-              <p className={styles.sectionSubtitle}>
+        <section className="featuresSection">
+          <div className="featuresContainer">
+            <div className="sectionHeader">
+              <h2 className="sectionTitle">Everything You Need to Succeed</h2>
+              <p className="sectionSubtitle">
                 Powerful features designed for modern teams who demand excellence, security, and speed.
               </p>
             </div>
 
-            <div className={styles.featuresGrid}>
+            <div className="featuresGrid">
               {features.map((feature, idx) => (
                 <div 
                   key={idx}
-                  className={`${styles.featureCard} ${styles[`featureCard${feature.colorClass}`]}`}
+                  className={`featureCard featureCard${feature.colorClass}`}
                 >
-                  <div className={`${styles.featureIcon} ${styles[`featureIcon${feature.colorClass}`]}`}>
+                  <div className={`featureIcon featureIcon${feature.colorClass}`}>
                     <feature.icon size={28} />
                   </div>
-                  <h3 className={styles.featureTitle}>{feature.title}</h3>
-                  <p className={styles.featureDescription}>
+                  <h3 className="featureTitle">{feature.title}</h3>
+                  <p className="featureDescription">
                     {feature.description}
                   </p>
                 </div>
@@ -174,23 +174,23 @@ const Landing = () => {
         </section>
 
         {/* Use Cases / Benefits Section */}
-        <section className={styles.useCasesSection}>
-          <div className={styles.useCasesContainer}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Built for Your Success</h2>
-              <p className={styles.sectionSubtitle}>
+        <section className="useCasesSection">
+          <div className="useCasesContainer">
+            <div className="sectionHeader">
+              <h2 className="sectionTitle">Built for Your Success</h2>
+              <p className="sectionSubtitle">
                 Whether you're planning strategy, tracking growth, or seeking insights, SGE adapts to your needs.
               </p>
             </div>
 
-            <div className={styles.useCasesGrid}>
+            <div className="useCasesGrid">
               {useCases.map((useCase, idx) => (
-                <div key={idx} className={styles.useCaseCard}>
-                  <div className={styles.useCaseIcon}>
+                <div key={idx} className="useCaseCard">
+                  <div className="useCaseIcon">
                     <useCase.icon size={32} />
                   </div>
-                  <h3 className={styles.useCaseTitle}>{useCase.title}</h3>
-                  <p className={styles.useCaseDescription}>
+                  <h3 className="useCaseTitle">{useCase.title}</h3>
+                  <p className="useCaseDescription">
                     {useCase.description}
                   </p>
                 </div>
@@ -200,17 +200,17 @@ const Landing = () => {
         </section>
 
         {/* Trusted By / Social Proof */}
-        <section className={styles.trustedSection}>
-          <div className={styles.trustedContainer}>
-            <div className={styles.trustedHeader}>
-              <p className={styles.trustedLabel}>
+        <section className="trustedSection">
+          <div className="trustedContainer">
+            <div className="trustedHeader">
+              <p className="trustedLabel">
                 Trusted by innovative teams worldwide
               </p>
-              <div className={styles.trustedLogos}>
+              <div className="trustedLogos">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className={styles.trustedLogo}>
-                    <Award size={24} className={styles.trustedLogoIcon} />
-                    <span className={styles.trustedLogoText}>Company {i}</span>
+                  <div key={i} className="trustedLogo">
+                    <Award size={24} className="trustedLogoIcon" />
+                    <span className="trustedLogoText">Company {i}</span>
                   </div>
                 ))}
               </div>
@@ -219,87 +219,87 @@ const Landing = () => {
         </section>
 
         {/* CTA Section */}
-        <section className={styles.ctaSection}>
-          <div className={styles.ctaPattern}></div>
-          <div className={styles.ctaContainer}>
-            <h2 className={styles.ctaTitle}>Ready to Transform Your Business?</h2>
-            <p className={styles.ctaSubtitle}>
+        <section className="ctaSection">
+          <div className="ctaPattern"></div>
+          <div className="ctaContainer">
+            <h2 className="ctaTitle">Ready to Transform Your Business?</h2>
+            <p className="ctaSubtitle">
               Join thousands of forward-thinking organizations using SGE to accelerate growth, streamline operations, and make smarter decisions.
             </p>
-            <div className={styles.ctaActions}>
-              <Link to="/signup" className={styles.ctaButtonPrimary}>
+            <div className="ctaActions">
+              <Link to="/signup" className="ctaButtonPrimary">
                 Start Free Trial <ArrowRight size={20} />
               </Link>
-              <Link to="/login" className={styles.ctaButtonSecondary}>
+              <Link to="/login" className="ctaButtonSecondary">
                 Sign In
               </Link>
             </div>
-            <p className={styles.ctaDisclaimer}>No credit card required • 14-day free trial • Cancel anytime</p>
+            <p className="ctaDisclaimer">No credit card required • 14-day free trial • Cancel anytime</p>
           </div>
         </section>
       </main>
 
       {/* Enhanced Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <div className={styles.footerGrid}>
+      <footer className="footer">
+        <div className="footerContainer">
+          <div className="footerGrid">
             {/* Brand */}
-            <div className={styles.footerBrand}>
-              <div className={styles.footerBrandLogo}>
-                <span className={styles.footerBrandIcon}>SGE</span>
-                <span className={styles.footerBrandName}>Platform</span>
+            <div className="footerBrand">
+              <div className="footerBrandLogo">
+                <span className="footerBrandIcon">SGE</span>
+                <span className="footerBrandName">Platform</span>
               </div>
-              <p className={styles.footerBrandDescription}>
+              <p className="footerBrandDescription">
                 Empowering organizations with AI-driven intelligence and strategic insights.
               </p>
             </div>
 
             {/* Product */}
-            <div className={styles.footerSection}>
-              <h4 className={styles.footerSectionTitle}>Product</h4>
-              <ul className={styles.footerLinks}>
-                <li><Link to="/signup" className={styles.footerLink}>Features</Link></li>
-                <li><Link to="/signup" className={styles.footerLink}>Pricing</Link></li>
-                <li><Link to="/login" className={styles.footerLink}>Demo</Link></li>
-                <li><Link to="/signup" className={styles.footerLink}>API</Link></li>
+            <div className="footerSection">
+              <h4 className="footerSectionTitle">Product</h4>
+              <ul className="footerLinks">
+                <li><Link to="/signup" className="footerLink">Features</Link></li>
+                <li><Link to="/signup" className="footerLink">Pricing</Link></li>
+                <li><Link to="/login" className="footerLink">Demo</Link></li>
+                <li><Link to="/signup" className="footerLink">API</Link></li>
               </ul>
             </div>
 
             {/* Company */}
-            <div className={styles.footerSection}>
-              <h4 className={styles.footerSectionTitle}>Company</h4>
-              <ul className={styles.footerLinks}>
-                <li><Link to="/" className={styles.footerLink}>About</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Blog</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Careers</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Contact</Link></li>
+            <div className="footerSection">
+              <h4 className="footerSectionTitle">Company</h4>
+              <ul className="footerLinks">
+                <li><Link to="/" className="footerLink">About</Link></li>
+                <li><Link to="/" className="footerLink">Blog</Link></li>
+                <li><Link to="/" className="footerLink">Careers</Link></li>
+                <li><Link to="/" className="footerLink">Contact</Link></li>
               </ul>
             </div>
 
             {/* Legal */}
-            <div className={styles.footerSection}>
-              <h4 className={styles.footerSectionTitle}>Legal</h4>
-              <ul className={styles.footerLinks}>
-                <li><Link to="/" className={styles.footerLink}>Privacy</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Terms</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Security</Link></li>
-                <li><Link to="/" className={styles.footerLink}>Compliance</Link></li>
+            <div className="footerSection">
+              <h4 className="footerSectionTitle">Legal</h4>
+              <ul className="footerLinks">
+                <li><Link to="/" className="footerLink">Privacy</Link></li>
+                <li><Link to="/" className="footerLink">Terms</Link></li>
+                <li><Link to="/" className="footerLink">Security</Link></li>
+                <li><Link to="/" className="footerLink">Compliance</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className={styles.footerBottom}>
-            <p className={styles.footerCopyright}>
+          <div className="footerBottom">
+            <p className="footerCopyright">
               © {new Date().getFullYear()} Strategic Growth Engine. All rights reserved.
             </p>
-            <div className={styles.footerBottomLinks}>
-              <Link to="/login" className={styles.footerBottomLink}>
+            <div className="footerBottomLinks">
+              <Link to="/login" className="footerBottomLink">
                 Status
               </Link>
-              <Link to="/login" className={styles.footerBottomLink}>
+              <Link to="/login" className="footerBottomLink">
                 Documentation
               </Link>
-              <Link to="/login" className={styles.footerBottomLink}>
+              <Link to="/login" className="footerBottomLink">
                 Support
               </Link>
             </div>
