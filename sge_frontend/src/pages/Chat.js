@@ -23,6 +23,12 @@ const Chat = () => {
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const justCreatedConversationId = useRef(null);
+  const activeConversationIdRef = useRef(activeConversationId);
+
+  // Keep ref in sync with state for use in callbacks
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   // Simple toast helper
   const showError = (msg) => {
@@ -33,30 +39,48 @@ const Chat = () => {
   const fetchConversations = useCallback(async () => {
     try {
       const list = await getConversations();
-      // Preserve optimistic conversations (starting with temp- or conv-)
+      
       setConversations(prev => {
-        // Filter out old temp ones if they are not active? 
-        // Logic: merge server list with any temp items not in server list
+        const currentActiveId = activeConversationIdRef.current;
+        
+        // Preserve optimistic/temp conversations
         const temps = prev.filter(c => c.id.toString().startsWith('temp-'));
         const listIds = new Set(list.map(c => c.id));
+        
+        // Also ensure we preserve the currently active conversation if it's missing from the server list
+        // This handles cases where a new conversation was created but eventual consistency 
+        // or race conditions mean it's not in the 'list' yet.
+        let preservedActive = null;
+        if (currentActiveId && !listIds.has(currentActiveId)) {
+          preservedActive = prev.find(c => c.id === currentActiveId);
+        }
+
         const uniqueTemps = temps.filter(t => !listIds.has(t.id));
         
-        // If the active conversation is not in the new list and not temp, 
-        // it might have been deleted or we are in a weird state. 
-        return [...uniqueTemps, ...list];
+        let newList = [...uniqueTemps, ...list];
+        
+        // If we found a valid active conversation in local state that is missing from server list, add it back
+        if (preservedActive && !newList.some(c => c.id === preservedActive.id)) {
+           // Put it at the top if it's likely new, or just prepend
+           newList = [preservedActive, ...newList];
+        }
+        
+        return newList;
       });
       
-      // Only set active if none selected and list available
+      // Update active ID selection logic
       setActiveConversationId(prev => {
-        // If we just created this conversation, keep it selected even if not in list yet
+        // If we just created this conversation, keep it selected
         if (justCreatedConversationId.current && prev === justCreatedConversationId.current) {
           return prev;
         }
 
+        // If nothing selected and we have options, select first
         if (!prev && list.length > 0) return list[0].id;
-        // Check if prev exists in list or is temp
-        const stillExists = list.find(c => c.id === prev) || prev?.toString().startsWith('temp-');
-        if (prev && !stillExists && list.length > 0) return list[0].id;
+        
+        // If we have a selection, keep it. We trust the setConversations logic above
+        // to have preserved it if it was valid. We avoid aggressive auto-switching 
+        // to prevent UI jumping.
         return prev;
       });
     } catch (error) {
@@ -142,10 +166,11 @@ const Chat = () => {
       }
 
       if ((!activeConversationId || isTempId) && conversation_id) {
+        // IMPORTANT: Set this ref BEFORE updating state to prevent fetchMessages from triggering
         justCreatedConversationId.current = conversation_id;
         setActiveConversationId(conversation_id);
         
-        // Update conversation list item from temp to real
+        // Update conversation list item from temp to real without losing state
         setConversations(prev => {
           if (isTempId) {
              return prev.map(c => c.id === activeConversationId ? { ...c, id: conversation_id, title: tempMessage.content.substring(0,30) } : c);
@@ -170,7 +195,7 @@ const Chat = () => {
           // Use the real user message from server (if available) or temp
           const realUserMsg = user_message || tempMessage;
           
-          // Append real user msg + assistant msg
+          // Append real user msg + assistant msg. Do NOT clear existing history.
           return [...withoutTemp, realUserMsg, assistant_message];
         });
       } else {
