@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Building, Eye, EyeOff, ArrowLeft, Sparkles, CheckCircle, XCircle } from 'lucide-react';
 
-// PUBLIC_INTERFACE
 /**
- * Signup component - User registration page
- * Features split layout on desktop, centered card on mobile
- * Includes password visibility toggle and live validation
+ * PUBLIC_INTERFACE
+ * Signup component - User registration page.
+ * Uses AuthContext.signUp which configures email redirect using REACT_APP_SITE_URL.
+ * Features split layout on desktop, centered card on mobile.
+ * Includes password visibility toggle and live validation.
  */
 const Signup = () => {
   const [email, setEmail] = useState('');

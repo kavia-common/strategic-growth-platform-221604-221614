@@ -7,6 +7,16 @@ const AuthContext = createContext({});
 export const useAuth = () => useContext(AuthContext);
 
 // PUBLIC_INTERFACE
+/**
+ * AuthProvider
+ * Provides authentication state and actions (signUp, signOut) backed by Supabase.
+ * Children will render only after the initial auth state has been determined.
+ *
+ * Note: For email-based auth flows, the redirect URL should be set using
+ * REACT_APP_SITE_URL from the environment. Example:
+ *   const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
+ *   supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${siteUrl}/login` } })
+ */
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
@@ -21,7 +31,9 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -31,11 +43,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signUp = async (email, password, metadata = {}) => {
+    const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
     return supabase.auth.signUp({
       email,
       password,
       options: {
         data: metadata,
+        // Ensure proper redirect in hosted environments
+        emailRedirectTo: `${siteUrl}/login`,
       },
     });
   };
@@ -45,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     user,
     signUp,
     signOut: () => supabase.auth.signOut(),
-    loading
+    loading,
   };
 
   return (

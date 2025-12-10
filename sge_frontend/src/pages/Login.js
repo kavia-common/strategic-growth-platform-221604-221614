@@ -4,6 +4,9 @@ import { supabase } from '../lib/supabase';
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, Sparkles } from 'lucide-react';
 
 // PUBLIC_INTERFACE
+/**
+ * Login page for users to authenticate using Supabase email/password.
+ */
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
