@@ -50,7 +50,6 @@ const resolveBaseURL = () => {
 // Verified: REACT_APP_API_URL should be the base URL (e.g., https://api.example.com).
 // Backend routes are mounted at /api/..., so calls should be /api/chat/conversations.
 // Axios automatically handles CORS preflight (OPTIONS).
-// Credentials (cookies) are NOT sent by default unless withCredentials is set (not needed here).
 
 const api = axios.create({
   baseURL: resolveBaseURL(),
@@ -129,6 +128,57 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+/*
+ * --- API Helper Methods ---
+ * These methods encapsulate specific backend endpoints using the configured axios client.
+ */
+
+// PUBLIC_INTERFACE
+/**
+ * Fetches all conversations for the current user.
+ */
+export const getConversations = () => {
+  return api.get('/api/chat/conversations');
+};
+
+// PUBLIC_INTERFACE
+/**
+ * Creates a new conversation with the given title.
+ * @param {string} title - The title of the new conversation.
+ */
+export const createConversation = (title) => {
+  return api.post('/api/chat/conversations', { title });
+};
+
+// PUBLIC_INTERFACE
+/**
+ * Fetches messages for a specific conversation by ID.
+ * Maps to the backend endpoint: GET /api/chat/conversations/{id}/messages
+ * @param {string} id - The conversation ID.
+ */
+export const getConversationById = (id) => {
+  // Assuming 'getConversationById' intent is to fetch the conversation details/messages
+  // based on the provided OpenAPI spec which has /messages for a specific ID.
+  return api.get(`/api/chat/conversations/${id}/messages`);
+};
+
+// PUBLIC_INTERFACE
+/**
+ * Sends a message to a conversation.
+ * @param {Object} payload - { conversation_id, content }
+ */
+export const createMessage = (payload) => {
+  return api.post('/api/chat/message', payload);
+};
+
+// PUBLIC_INTERFACE
+/**
+ * Fetches the dashboard summary metrics.
+ */
+export const getDashboardSummary = () => {
+  return api.get('/api/dashboard/summary');
+};
 
 // PUBLIC_INTERFACE
 export default api;
