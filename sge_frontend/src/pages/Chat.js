@@ -166,7 +166,8 @@ const Chat = () => {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      showError('Failed to send message');
+      const msg = error.message || error.toString();
+      showError(`Failed to send message: ${msg}`);
       // Rollback: remove message bubble but restore input text so user doesn't lose it
       setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
       setNewMessage(tempMessage.content);
@@ -204,10 +205,11 @@ const Chat = () => {
       }
     } catch (err) {
       console.error('Failed to create conversation:', err);
-      showError('Failed to create conversation');
-      // Rollback optimistic addition
-      setConversations(prev => prev.filter(c => c.id !== tempId));
-      setActiveConversationId(prev => conversations[0]?.id || null);
+      const msg = err.message || err.toString();
+      showError(`Failed to create conversation: ${msg}`);
+      // Do NOT rollback optimistic addition to preserve state as requested
+      // setConversations(prev => prev.filter(c => c.id !== tempId));
+      // setActiveConversationId(prev => conversations[0]?.id || null);
     }
   };
 
