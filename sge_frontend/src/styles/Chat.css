@@ -665,8 +665,8 @@
   .chat-history-sidebar {
     position: fixed;
     left: -320px;
-    top: 64px; /* below main app topbar */
-    height: calc(100vh - 64px);
+    top: 0; /* Start from very top of viewport */
+    height: 100vh; /* Full viewport height */
     z-index: var(--z-modal);
     box-shadow: var(--shadow-xl);
     transition: left var(--transition-smooth);
@@ -699,7 +699,7 @@
   /* Overlay behind the drawer */
   .chat-history-overlay {
     position: fixed;
-    inset: 64px 0 0 0; /* below main app topbar */
+    inset: 0; /* Cover entire viewport */
     background: rgba(28, 28, 28, 0.45);
     backdrop-filter: blur(2px);
     opacity: 0;
