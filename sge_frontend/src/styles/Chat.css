@@ -578,6 +578,16 @@
    RESPONSIVE
    ========================================== */
 
+/* Desktop (>= 950px): hide small-screen controls */
+@media (min-width: 950px) {
+  /* Hide the small-screen chat topbar and history toggle on wide screens */
+  .chat-topbar-sm,
+  .chat-history-toggle,
+  .chat-history-close-sm {
+    display: none !important;
+  }
+}
+
 /* Small/medium screens: hide history by default under 950px, add overlay/drawer behavior,
    and make input actions responsive to prevent overlap. */
 @media (max-width: 950px) {

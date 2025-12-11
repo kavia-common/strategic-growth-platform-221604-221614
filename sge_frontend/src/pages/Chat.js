@@ -433,7 +433,7 @@ const Chat = () => {
           </button>
           <button
             type="button"
-            className="chat-history-close-sm"
+            className="chat-history-close-sm history-close"
             aria-label="Close history"
             onClick={() => {
               setIsHistoryOpen(false);
@@ -527,7 +527,7 @@ const Chat = () => {
           <button
             ref={historyButtonRef}
             type="button"
-            className="chat-history-toggle"
+            className="chat-history-toggle history-toggle"
             aria-label="Toggle conversation history"
             aria-haspopup="dialog"
             aria-expanded={isHistoryOpen}
