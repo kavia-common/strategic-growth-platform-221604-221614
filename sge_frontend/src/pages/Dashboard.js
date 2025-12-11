@@ -380,7 +380,8 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="strategic-projects-card">
-            <table className="projects-table">
+            <div className="sp-table-scroll">
+              <table className="projects-table">
               <thead>
                 <tr>
                   <th>Project Name</th>
@@ -430,7 +431,8 @@ const Dashboard = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </section>
 
