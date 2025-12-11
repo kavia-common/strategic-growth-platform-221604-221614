@@ -523,7 +523,7 @@ const Chat = () => {
       {/* Right Conversation Area */}
       <div className="chat-conversation-area">
         {/* Small-screen top bar for Chat page with History toggle */}
-        <div className="chat-topbar-sm">
+        <div className="chat-topbar-sm" role="region" aria-label="Chat controls">
           <button
             ref={historyButtonRef}
             type="button"
@@ -537,6 +537,28 @@ const Chat = () => {
             <History size={18} />
             <span className="chat-history-toggle-text">History</span>
           </button>
+
+          {/* Centered conversation title on small screens */}
+          {(() => {
+            const activeConv =
+              conversations.find((c) => c.id === activeConversationId) || null;
+            const activeTitle =
+              (activeConv && activeConv.title) || 'New Conversation';
+            return (
+              <div className="chat-topbar-title-sm" aria-live="polite">
+                <h3
+                  className="chat-topbar-title-sm-text"
+                  title={activeTitle}
+                  aria-label={`Conversation: ${activeTitle}`}
+                >
+                  {activeTitle}
+                </h3>
+              </div>
+            );
+          })()}
+
+          {/* Right-side placeholder to keep title centered if future actions appear */}
+          <div className="chat-topbar-right-sm" aria-hidden="true"></div>
         </div>
         <div className="chat-messages-container">
           <div className="chat-messages-inner">
