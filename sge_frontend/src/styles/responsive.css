@@ -1,0 +1,116 @@
+ /* Responsive helpers for AppLayout sidebar drawer and topbar hamburger */
+
+.layout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 28, 28, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow);
+  z-index: var(--z-modal-backdrop);
+}
+
+.layout-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Topbar hamburger - hidden on md+ */
+.layout-hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: var(--spacing-md);
+  border: 1px solid var(--border-default);
+  background: #fff;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.layout-hamburger:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.layout-topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Sidebar drawer behavior */
+.responsive-sidebar {
+  /* default for desktop - visible statically */
+  position: relative;
+  left: 0;
+  top: 0;
+  height: auto;
+  z-index: var(--z-sticky);
+}
+
+/* Mobile styles (below 768px) */
+@media (max-width: 768px) {
+  .layout-hamburger {
+    display: inline-flex;
+  }
+
+  .responsive-sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: var(--z-modal);
+    transition: left var(--transition-smooth);
+  }
+
+  .responsive-sidebar.mobile-open {
+    left: 0;
+  }
+}
+
+/* Desktop styles (>= 769px): show sidebar, hide hamburger, no overlay click target needed */
+@media (min-width: 769px) {
+  .layout-hamburger {
+    display: none;
+  }
+
+  .layout-overlay {
+    display: none;
+  }
+}
+
+/* Sidebar top strip for mobile with a close button */
+.sidebar-mobile-controls {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar-mobile-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-sm);
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    color: var(--foundatia-off-white);
+    border: 1px solid rgba(227, 183, 106, 0.25);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .sidebar-close-btn:hover {
+    background: rgba(227, 183, 106, 0.1);
+    color: var(--foundatia-warm-gold);
+  }
+}
