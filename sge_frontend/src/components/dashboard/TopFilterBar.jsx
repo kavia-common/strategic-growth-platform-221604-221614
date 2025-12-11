@@ -15,10 +15,12 @@ const TopFilterBar = ({ timeRange, onTimeRangeChange, dataView, onDataViewChange
   ];
 
   const dataViewOptions = [
-    { value: 'overview', label: 'Overview' },
-    { value: 'engagement', label: 'Engagement' },
-    { value: 'revenue', label: 'Revenue' },
-    { value: 'operations', label: 'Operations' }
+    { value: 'Overview', label: 'Overview' },
+    { value: 'Engagement', label: 'Engagement' },
+    { value: 'Revenue', label: 'Revenue' },
+    { value: 'Ops', label: 'Operations' },
+    { value: 'Strategy', label: 'Strategy' },
+    { value: 'Full Catalog', label: 'Catalog' }
   ];
 
   return (

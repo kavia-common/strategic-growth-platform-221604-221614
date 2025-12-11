@@ -13,11 +13,11 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/Dashboard.css';
 import { fetchDashboardMetrics } from '../services/dataService';
 import { fetchAllMetrics } from '../services/metricsService';
-import GrowthSection from '../components/dashboard/GrowthSection';
-import EngagementSection from '../components/dashboard/EngagementSection';
-import RevenueSection from '../components/dashboard/RevenueSection';
-import OpsSection from '../components/dashboard/OpsSection';
+import EnhancedEngagementSection from '../components/dashboard/EnhancedEngagementSection';
+import EnhancedRevenueSection from '../components/dashboard/EnhancedRevenueSection';
+import EnhancedOpsSection from '../components/dashboard/EnhancedOpsSection';
 import MetricsGrid from '../components/dashboard/MetricsGrid';
+import TopFilterBar from '../components/dashboard/TopFilterBar';
 
 // ============================================
 // COMPONENTS
@@ -67,7 +67,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filters
-  const [dateRange, setDateRange] = useState('12m');
+  const [dateRange, setDateRange] = useState('30d');
   const [segment, setSegment] = useState('all');
   const [planTier, setPlanTier] = useState('all');
   const [region, setRegion] = useState('all');
@@ -123,6 +123,8 @@ const Dashboard = () => {
         result = result.filter(m => {
             const d = (m.domain || '').toLowerCase();
             const tab = activeTab.toLowerCase();
+            // Map 'Ops' tab to 'operations' domain if needed, or check logic
+            if (tab === 'ops') return d.includes('ops') || d.includes('operations');
             return d.includes(tab);
         });
     }
@@ -303,29 +305,25 @@ const Dashboard = () => {
       <div className="dashboard-container">
         
         {/* Header & Controls */}
-        <section className="dashboard-controls">
-          <div>
-            <h2 className="dashboard-section-title">Dashboard</h2>
-            <p className="dashboard-section-subtitle">
-              Welcome back, {user?.email} &bull; <span style={{ color: '#E3B76A' }}>{orgName}</span>
-            </p>
-          </div>
-          
-          {/* Tabs */}
-          <div className="tabs-container">
-            {['Overview', 'Full Catalog', 'Growth', 'Engagement', 'Revenue', 'Ops', 'Strategy'].map(tab => (
-              <button 
-                key={tab} 
-                className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
+        <section className="dashboard-controls" style={{ flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+               <h2 className="dashboard-section-title">Dashboard</h2>
+               <p className="dashboard-section-subtitle">
+                 Welcome back, {user?.email} &bull; <span style={{ color: '#E3B76A' }}>{orgName}</span>
+               </p>
+            </div>
           </div>
 
-          {/* Filters */}
-          <div className="filters-bar" style={{ flexWrap: 'wrap', gap: '10px' }}>
+          <TopFilterBar 
+             timeRange={dateRange}
+             onTimeRangeChange={setDateRange}
+             dataView={activeTab}
+             onDataViewChange={setActiveTab}
+          />
+          
+          {/* Secondary Filters (Segment, Plan, Region) */}
+          <div className="filters-bar" style={{ justifyContent: 'center', width: '100%' }}>
             
             {/* Search Box */}
             <input 
@@ -342,13 +340,6 @@ const Dashboard = () => {
                 }}
             />
 
-            <select className="filter-select" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-              <option value="1m">Last 30 Days</option>
-              <option value="3m">Last 3 Months</option>
-              <option value="6m">Last 6 Months</option>
-              <option value="12m">Last Year</option>
-            </select>
-            
             <select className="filter-select" value={segment} onChange={e => setSegment(e.target.value)}>
               <option value="all">All Segments</option>
               {segmentsData && [...new Set(segmentsData.map(s => s.segment))].map(seg => (
@@ -381,23 +372,24 @@ const Dashboard = () => {
         {/* Dynamic Content */}
         {activeTab === 'Overview' && renderOverview()}
         
+        {/* Engagement Tab */}
+        {activeTab === 'Engagement' && (
+             <EnhancedEngagementSection data={filteredEngagement} timeRange={dateRange} />
+        )}
+
+        {/* Revenue Tab */}
+        {activeTab === 'Revenue' && (
+             <EnhancedRevenueSection data={filteredRevenue} timeRange={dateRange} />
+        )}
+
+        {/* Ops Tab */}
+        {activeTab === 'Ops' && (
+             <EnhancedOpsSection data={filteredOps} timeRange={dateRange} />
+        )}
+
         {/* Render Metrics Grid for other tabs */}
         {(activeTab === 'Full Catalog' || activeTab === 'Strategy') && (
             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
-        )}
-        
-        {/* Fallback to Grid if specific component not desired/used, or use existing + Grid */}
-        {activeTab === 'Growth' && (
-             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
-        )}
-        {activeTab === 'Engagement' && (
-             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
-        )}
-        {activeTab === 'Revenue' && (
-             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
-        )}
-        {activeTab === 'Ops' && (
-             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
         )}
 
       </div>

@@ -1,84 +1,35 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend, AreaChart, Area
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  Line, LineChart
 } from 'recharts';
 import { 
   TrendingUp, DollarSign, Target, 
   Eye, Zap, AlertCircle,
-  Activity, ArrowUpRight, ArrowDownRight
+  ArrowUpRight, ArrowDownRight,
+  Users
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import '../styles/Dashboard.css';
-
-// ============================================
-// MOCK DATA GENERATORS
-// ============================================
-
-const generateMomentumData = () => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return months.map((month, idx) => ({
-    month,
-    momentum: 65 + idx * 3 + Math.random() * 8,
-  }));
-};
-
-const generateExecutionVelocityData = () => {
-  const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'];
-  return weeks.map((week, idx) => ({
-    week,
-    velocity: 70 + idx * 4 + Math.random() * 10,
-  }));
-};
-
-const generateRiskTrendsData = () => {
-  const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
-  return quarters.map((quarter, idx) => ({
-    quarter,
-    high: 5 + Math.random() * 3,
-    medium: 12 + Math.random() * 5,
-    low: 20 + Math.random() * 8,
-  }));
-};
-
-const generateRecommendationsData = () => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  return months.map((month, idx) => ({
-    month,
-    accepted: 75 + idx * 2 + Math.random() * 8,
-  }));
-};
-
-const generateInsights = () => [
-  { id: 1, text: 'Revenue growth exceeded targets by 12% this quarter', meta: '2 hours ago', priority: 'high' },
-  { id: 2, text: 'Customer retention improved to 94%, up 3% from last month', meta: '4 hours ago', priority: 'high' },
-  { id: 3, text: 'New market segment showing 28% conversion rate', meta: '6 hours ago', priority: 'medium' },
-  { id: 4, text: 'Strategic initiative "Project Phoenix" is 85% complete', meta: '1 day ago', priority: 'medium' },
-  { id: 5, text: 'Team productivity metrics up 15% after recent changes', meta: '1 day ago', priority: 'low' },
-  { id: 6, text: 'Quarterly risk assessment completed with low overall risk', meta: '2 days ago', priority: 'low' },
-  { id: 7, text: 'Customer feedback NPS score reached 62, highest this year', meta: '2 days ago', priority: 'medium' },
-  { id: 8, text: 'New partnership opportunities identified in APAC region', meta: '3 days ago', priority: 'high' },
-];
-
-const generateStrategicProjects = () => [
-  { id: 1, name: 'Digital Transformation Initiative', status: 'in-progress', priority: 'high', completion: 68, owner: 'Sarah Chen' },
-  { id: 2, name: 'Customer Experience Redesign', status: 'active', priority: 'high', completion: 82, owner: 'Mike Thompson' },
-  { id: 3, name: 'Market Expansion - EMEA', status: 'pending', priority: 'medium', completion: 35, owner: 'Alex Rodriguez' },
-  { id: 4, name: 'Product Innovation Lab', status: 'in-progress', priority: 'high', completion: 55, owner: 'Emma Williams' },
-  { id: 5, name: 'Operational Excellence Program', status: 'completed', priority: 'medium', completion: 100, owner: 'David Kim' },
-  { id: 6, name: 'Sustainability Initiative', status: 'on-hold', priority: 'low', completion: 20, owner: 'Lisa Anderson' },
-];
+import { fetchDashboardMetrics } from '../services/dataService';
+import { fetchAllMetrics } from '../services/metricsService';
+import GrowthSection from '../components/dashboard/GrowthSection';
+import EngagementSection from '../components/dashboard/EngagementSection';
+import RevenueSection from '../components/dashboard/RevenueSection';
+import OpsSection from '../components/dashboard/OpsSection';
+import MetricsGrid from '../components/dashboard/MetricsGrid';
 
 // ============================================
 // COMPONENTS
 // ============================================
 
-const ExecutiveMetricCard = ({ title, value, change, icon: Icon }) => {
+const ExecutiveMetricCard = ({ title, value, change, icon: Icon, colorClass }) => {
   const isPositive = change >= 0;
   
   return (
     <div className="metric-card">
       <div className="metric-card-header">
-        <div className="metric-icon">
+        <div className="metric-icon" style={colorClass ? { color: colorClass } : {}}>
           <Icon size={20} />
         </div>
       </div>
@@ -94,347 +45,360 @@ const ExecutiveMetricCard = ({ title, value, change, icon: Icon }) => {
   );
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload) return null;
-  return (
-    <div style={{
-      backgroundColor: 'white',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #E8E8E8',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: '#1C1C1C' }}>{label}</p>
-      {payload.map((entry, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color }} />
-          <span style={{ fontSize: '14px', color: '#1C1C1C' }}>
-            {entry.name}: <strong>{typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}</strong>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 // ============================================
 // MAIN DASHBOARD COMPONENT
 // ============================================
 
 const Dashboard = () => {
-  const [timeRange, setTimeRange] = useState('12m');
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('Overview');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Data States
+  const [growthData, setGrowthData] = useState([]);
+  const [engagementData, setEngagementData] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [opsData, setOpsData] = useState([]);
+  const [segmentsData, setSegmentsData] = useState([]);
+  
+  // CSV Metrics State
+  const [csvMetrics, setCsvMetrics] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const momentumData = useMemo(() => generateMomentumData(), []);
-  const executionVelocityData = useMemo(() => generateExecutionVelocityData(), []);
-  const riskTrendsData = useMemo(() => generateRiskTrendsData(), []);
-  const recommendationsData = useMemo(() => generateRecommendationsData(), []);
-  const insights = useMemo(() => generateInsights(), []);
-  const projects = useMemo(() => generateStrategicProjects(), []);
+  // Filters
+  const [dateRange, setDateRange] = useState('12m');
+  const [segment, setSegment] = useState('all');
+  const [planTier, setPlanTier] = useState('all');
+  const [region, setRegion] = useState('all');
+
+  // Load Data
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Load API mock data
+        const metrics = await fetchDashboardMetrics();
+        setGrowthData(metrics.growth || []);
+        setEngagementData(metrics.engagement || []);
+        setRevenueData(metrics.revenue || []);
+        setOpsData(metrics.ops || []);
+        setSegmentsData(metrics.segments || []);
+        
+        // Load CSV Metrics
+        const allCsv = await fetchAllMetrics();
+        setCsvMetrics(allCsv);
+        
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+        setError("Failed to load dashboard metrics. Please check your network connection.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Filter Logic (Simple client-side filtering example)
+  const filterDataByDate = (data) => {
+    if (!data) return [];
+    // Simplistic filter: assuming mock data is recent. 
+    // In a real scenario, compare row.date with threshold.
+    return data; 
+  };
+
+  const filteredGrowth = useMemo(() => filterDataByDate(growthData), [growthData, dateRange]);
+  const filteredEngagement = useMemo(() => filterDataByDate(engagementData), [engagementData, dateRange]);
+  const filteredRevenue = useMemo(() => filterDataByDate(revenueData), [revenueData, dateRange]);
+  const filteredOps = useMemo(() => filterDataByDate(opsData), [opsData, dateRange]);
+
+  // Filter CSV Metrics
+  const filteredCsvMetrics = useMemo(() => {
+    let result = csvMetrics;
+    
+    // Filter by Tab/Category if not Overview or Full Catalog
+    if (activeTab !== 'Overview' && activeTab !== 'Full Catalog') {
+        result = result.filter(m => {
+            const d = (m.domain || '').toLowerCase();
+            const tab = activeTab.toLowerCase();
+            return d.includes(tab);
+        });
+    }
+
+    // Filter by Search
+    if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        result = result.filter(m => 
+            m.name.toLowerCase().includes(q) || 
+            (m.description && m.description.toLowerCase().includes(q))
+        );
+    }
+
+    return result;
+  }, [csvMetrics, activeTab, searchQuery]);
+
+  // Executive Metrics derived from latest data points
+  const latestRevenue = filteredRevenue.length > 0 ? filteredRevenue[filteredRevenue.length - 1] : {};
+  const previousRevenue = filteredRevenue.length > 1 ? filteredRevenue[filteredRevenue.length - 2] : {};
+  
+  const latestGrowth = filteredGrowth.length > 0 ? filteredGrowth[filteredGrowth.length - 1] : {};
+  const previousGrowth = filteredGrowth.length > 1 ? filteredGrowth[filteredGrowth.length - 2] : {};
+
+  const latestEngagement = filteredEngagement.length > 0 ? filteredEngagement[filteredEngagement.length - 1] : {};
+  const previousEngagement = filteredEngagement.length > 1 ? filteredEngagement[filteredEngagement.length - 2] : {};
+
+  const calculateChange = (curr, prev) => {
+    if (!prev || prev === 0) return 0;
+    return ((curr - prev) / prev * 100).toFixed(1);
+  };
 
   const executiveMetrics = [
-    { title: 'Revenue Growth', value: '$2.4M', change: 12.3, icon: DollarSign },
-    { title: 'Active Projects', value: '24', change: 8.5, icon: Activity },
-    { title: 'Team Velocity', value: '87%', change: 5.2, icon: TrendingUp },
-    { title: 'Strategic Alignment', value: '92%', change: 3.8, icon: Target },
+    { 
+      title: 'Total Revenue (MRR)', 
+      value: latestRevenue.mrr ? `$${latestRevenue.mrr.toLocaleString()}` : '$0', 
+      change: calculateChange(latestRevenue.mrr, previousRevenue.mrr), 
+      icon: DollarSign 
+    },
+    { 
+      title: 'Active Users', 
+      value: latestGrowth.active_users ? latestGrowth.active_users.toLocaleString() : '0', 
+      change: calculateChange(latestGrowth.active_users, previousGrowth.active_users), 
+      icon: Users 
+    },
+    { 
+      title: 'Avg Session', 
+      value: latestEngagement.avg_session_duration_min ? `${latestEngagement.avg_session_duration_min}m` : '0m', 
+      change: calculateChange(latestEngagement.avg_session_duration_min, previousEngagement.avg_session_duration_min), 
+      icon: Zap 
+    },
+    { 
+      title: 'New Signups', 
+      value: latestGrowth.new_signups ? latestGrowth.new_signups.toLocaleString() : '0', 
+      change: calculateChange(latestGrowth.new_signups, previousGrowth.new_signups), 
+      icon: TrendingUp 
+    },
   ];
 
-  const frameworkCards = [
-    {
-      title: 'Reveal',
-      description: 'Uncover hidden opportunities and insights from your data to drive strategic decisions.',
-      icon: Eye,
-      stat: { label: 'Insights', value: '127' }
-    },
-    {
-      title: 'Reframe',
-      description: 'Transform challenges into opportunities with innovative problem-solving approaches.',
-      icon: Zap,
-      stat: { label: 'Strategies', value: '18' }
-    },
-    {
-      title: 'Realign',
-      description: 'Align organizational efforts with strategic goals for maximum impact and efficiency.',
-      icon: Target,
-      stat: { label: 'Initiatives', value: '24' }
-    },
-  ];
+  const orgName = user?.user_metadata?.org_name || 'Organization';
+
+  // Render Helpers
+  const renderOverview = () => (
+    <>
+      {/* Executive Metrics */}
+      <section>
+        <div className="executive-metrics-grid">
+          {executiveMetrics.map((metric, idx) => (
+            <ExecutiveMetricCard key={idx} {...metric} />
+          ))}
+        </div>
+      </section>
+
+      {/* Main Overview Chart - Growth & Revenue */}
+      <section>
+        <div className="dashboard-two-column">
+          {/* Insights Panel */}
+          <div className="insights-panel">
+            <div className="insights-header">
+              <div className="insights-icon">
+                <AlertCircle size={20} />
+              </div>
+              <h3 className="insights-title">Latest Insights</h3>
+            </div>
+            <div className="insights-list">
+              {[
+                { id: 1, text: 'Revenue growth exceeded targets by 12% this quarter', meta: '2 hours ago' },
+                { id: 2, text: 'Customer retention improved to 94%, up 3% from last month', meta: '4 hours ago' },
+                { id: 3, text: 'New market segment showing 28% conversion rate', meta: '6 hours ago' }
+              ].map(insight => (
+                <div key={insight.id} className="insight-item">
+                  <div className="insight-dot" />
+                  <div className="insight-content">
+                    <p className="insight-text">{insight.text}</p>
+                    <p className="insight-meta">{insight.meta}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Growth Chart (Overview) */}
+          <div className="momentum-chart-card">
+            <div className="chart-header">
+              <div>
+                <h3 className="chart-title">Growth & Revenue</h3>
+                <p className="chart-subtitle">Revenue vs Target Performance</p>
+              </div>
+            </div>
+            <div className="chart-container">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={filteredRevenue}>
+                  <defs>
+                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#E3B76A" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#E3B76A" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
+                  <XAxis dataKey="date" stroke="#B0B4B8" fontSize={12} tickFormatter={(str) => str.substring(5, 7) + '/' + str.substring(2, 4)} />
+                  <YAxis stroke="#B0B4B8" fontSize={12} />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="mrr" stroke="#E3B76A" fillOpacity={1} fill="url(#colorRev)" name="MRR" />
+                  <Line type="monotone" dataKey="arr" stroke="#2563EB" strokeDasharray="5 5" name="ARR (Scaled)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Framework Cards */}
+      <section>
+        <div className="dashboard-section-header">
+          <div>
+            <h2 className="dashboard-section-title">Strategic Framework</h2>
+            <p className="dashboard-section-subtitle">Core methodologies driving growth</p>
+          </div>
+        </div>
+        <div className="framework-cards-grid">
+          {[
+            { title: 'Reveal', desc: 'Uncover hidden opportunities.', icon: Eye, val: '127' },
+            { title: 'Reframe', desc: 'Transform challenges into strategies.', icon: Zap, val: '18' },
+            { title: 'Realign', desc: 'Align efforts with goals.', icon: Target, val: '24' }
+          ].map((card, idx) => (
+            <div key={idx} className="framework-card">
+              <div className="framework-card-icon"><card.icon size={28} /></div>
+              <h3 className="framework-card-title">{card.title}</h3>
+              <p className="framework-card-description">{card.desc}</p>
+              <div className="framework-card-stat">
+                <span className="framework-stat-label">Insights</span>
+                <span className="framework-stat-value">{card.val}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+
+  if (loading) {
+    return (
+      <div className="dashboard-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="loading-spinner">Loading dashboard metrics...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-container">
         
-        {/* Executive Metrics - 4 Equal Cards */}
-        <section>
-          <div className="dashboard-section-header">
-            <div>
-              <h2 className="dashboard-section-title">Executive Metrics</h2>
-              <p className="dashboard-section-subtitle">Key performance indicators at a glance</p>
-            </div>
+        {/* Header & Controls */}
+        <section className="dashboard-controls">
+          <div>
+            <h2 className="dashboard-section-title">Dashboard</h2>
+            <p className="dashboard-section-subtitle">
+              Welcome back, {user?.email} &bull; <span style={{ color: '#E3B76A' }}>{orgName}</span>
+            </p>
           </div>
-          <div className="executive-metrics-grid">
-            {executiveMetrics.map((metric, idx) => (
-              <ExecutiveMetricCard key={idx} {...metric} />
+          
+          {/* Tabs */}
+          <div className="tabs-container">
+            {['Overview', 'Full Catalog', 'Growth', 'Engagement', 'Revenue', 'Ops', 'Strategy'].map(tab => (
+              <button 
+                key={tab} 
+                className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
             ))}
           </div>
-        </section>
 
-        {/* Two-Column: Insights Panel + Momentum Chart */}
-        <section>
-          <div className="dashboard-two-column">
+          {/* Filters */}
+          <div className="filters-bar" style={{ flexWrap: 'wrap', gap: '10px' }}>
             
-            {/* Insights Panel - Scrollable List with Gold Dots */}
-            <div className="insights-panel">
-              <div className="insights-header">
-                <div className="insights-icon">
-                  <AlertCircle size={20} />
-                </div>
-                <h3 className="insights-title">Latest Insights</h3>
-              </div>
-              <div className="insights-list">
-                {insights.map(insight => (
-                  <div key={insight.id} className="insight-item">
-                    <div className="insight-dot" />
-                    <div className="insight-content">
-                      <p className="insight-text">{insight.text}</p>
-                      <p className="insight-meta">{insight.meta}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Search Box */}
+            <input 
+                type="text" 
+                placeholder="Search metrics..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #D1D5DB',
+                    fontSize: '14px',
+                    minWidth: '200px'
+                }}
+            />
 
-            {/* Momentum Chart - Smooth Gold Line over Grey Grid */}
-            <div className="momentum-chart-card">
-              <div className="chart-header">
-                <div>
-                  <h3 className="chart-title">Strategic Momentum</h3>
-                  <p className="chart-subtitle">Overall momentum trend over time</p>
-                </div>
-                <div className="chart-actions">
-                  <select 
-                    value={timeRange}
-                    onChange={(e) => setTimeRange(e.target.value)}
-                    className="chart-filter"
-                  >
-                    <option value="3m">3 Months</option>
-                    <option value="6m">6 Months</option>
-                    <option value="12m">12 Months</option>
-                  </select>
-                </div>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={momentumData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
-                    <XAxis dataKey="month" stroke="#B0B4B8" fontSize={12} />
-                    <YAxis stroke="#B0B4B8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="momentum" 
-                      stroke="#E3B76A" 
-                      strokeWidth={3}
-                      dot={{ fill: '#E3B76A', r: 4 }}
-                      activeDot={{ r: 6, fill: '#D4A654' }}
-                      name="Momentum Score"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Framework Cards - Reveal, Reframe, Realign */}
-        <section>
-          <div className="dashboard-section-header">
-            <div>
-              <h2 className="dashboard-section-title">Strategic Framework</h2>
-              <p className="dashboard-section-subtitle">Core methodologies driving growth</p>
-            </div>
-          </div>
-          <div className="framework-cards-grid">
-            {frameworkCards.map((card, idx) => {
-              const Icon = card.icon;
-              return (
-                <div key={idx} className="framework-card">
-                  <div className="framework-card-icon">
-                    <Icon size={28} />
-                  </div>
-                  <h3 className="framework-card-title">{card.title}</h3>
-                  <p className="framework-card-description">{card.description}</p>
-                  <div className="framework-card-stat">
-                    <span className="framework-stat-label">{card.stat.label}</span>
-                    <span className="framework-stat-value">{card.stat.value}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Additional SGE Visualizations */}
-        <section>
-          <div className="dashboard-section-header">
-            <div>
-              <h2 className="dashboard-section-title">SGE Analytics</h2>
-              <p className="dashboard-section-subtitle">Advanced metrics and trends</p>
-            </div>
-          </div>
-          <div className="sge-visualizations-grid">
+            <select className="filter-select" value={dateRange} onChange={e => setDateRange(e.target.value)}>
+              <option value="1m">Last 30 Days</option>
+              <option value="3m">Last 3 Months</option>
+              <option value="6m">Last 6 Months</option>
+              <option value="12m">Last Year</option>
+            </select>
             
-            {/* Execution Velocity Trend */}
-            <div className="visualization-card">
-              <div className="chart-header">
-                <div>
-                  <h3 className="chart-title">Execution Velocity</h3>
-                  <p className="chart-subtitle">Weekly velocity tracking</p>
-                </div>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={executionVelocityData}>
-                    <defs>
-                      <linearGradient id="velocityGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#E3B76A" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#E3B76A" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
-                    <XAxis dataKey="week" stroke="#B0B4B8" fontSize={12} />
-                    <YAxis stroke="#B0B4B8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="velocity" 
-                      stroke="#E3B76A" 
-                      strokeWidth={2}
-                      fill="url(#velocityGradient)"
-                      name="Velocity %"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <select className="filter-select" value={segment} onChange={e => setSegment(e.target.value)}>
+              <option value="all">All Segments</option>
+              {segmentsData && [...new Set(segmentsData.map(s => s.segment))].map(seg => (
+                 <option key={seg} value={seg}>{seg}</option>
+              ))}
+              <option value="Enterprise">Enterprise</option>
+              <option value="Mid-Market">Mid-Market</option>
+              <option value="SMB">SMB</option>
+            </select>
 
-            {/* Risk Trends - Stacked Bar */}
-            <div className="visualization-card">
-              <div className="chart-header">
-                <div>
-                  <h3 className="chart-title">Risk Trends</h3>
-                  <p className="chart-subtitle">Risk assessment by severity</p>
-                </div>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={riskTrendsData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
-                    <XAxis dataKey="quarter" stroke="#B0B4B8" fontSize={12} />
-                    <YAxis stroke="#B0B4B8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Bar dataKey="high" stackId="a" fill="#EF4444" name="High Risk" radius={[0, 0, 0, 0]} />
-                    <Bar dataKey="medium" stackId="a" fill="#F59E0B" name="Medium Risk" radius={[0, 0, 0, 0]} />
-                    <Bar dataKey="low" stackId="a" fill="#10B981" name="Low Risk" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Recommendations Accepted Rate */}
-            <div className="visualization-card">
-              <div className="chart-header">
-                <div>
-                  <h3 className="chart-title">Recommendations Accepted</h3>
-                  <p className="chart-subtitle">AI recommendation adoption rate</p>
-                </div>
-              </div>
-              <div className="chart-container">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={recommendationsData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
-                    <XAxis dataKey="month" stroke="#B0B4B8" fontSize={12} />
-                    <YAxis stroke="#B0B4B8" fontSize={12} domain={[0, 100]} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="accepted" 
-                      stroke="#10B981" 
-                      strokeWidth={3}
-                      dot={{ fill: '#10B981', r: 5 }}
-                      name="Acceptance Rate %"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <select className="filter-select" value={planTier} onChange={e => setPlanTier(e.target.value)}>
+              <option value="all">All Plans</option>
+               {segmentsData && [...new Set(segmentsData.map(s => s.plan))].map(plan => (
+                 <option key={plan} value={plan}>{plan}</option>
+              ))}
+              <option value="Basic">Basic</option>
+              <option value="Pro">Pro</option>
+              <option value="Enterprise">Enterprise</option>
+            </select>
+            
+             <select className="filter-select" value={region} onChange={e => setRegion(e.target.value)}>
+              <option value="all">All Regions</option>
+              <option value="North America">North America</option>
+              <option value="EMEA">EMEA</option>
+              <option value="APAC">APAC</option>
+            </select>
           </div>
         </section>
 
-        {/* Strategic Projects Table with Colored Status Pills */}
-        <section>
-          <div className="dashboard-section-header">
-            <div>
-              <h2 className="dashboard-section-title">Strategic Projects</h2>
-              <p className="dashboard-section-subtitle">Active initiatives and their progress</p>
-            </div>
-          </div>
-          <div className="strategic-projects-card">
-            <div className="sp-table-scroll">
-              <table className="projects-table">
-              <thead>
-                <tr>
-                  <th>Project Name</th>
-                  <th>Status</th>
-                  <th>Priority</th>
-                  <th>Completion</th>
-                  <th>Owner</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.map(project => (
-                  <tr key={project.id}>
-                    <td style={{ fontWeight: 500 }}>{project.name}</td>
-                    <td>
-                      <span className={`status-pill ${project.status}`}>
-                        <span className="status-indicator" />
-                        {project.status.replace('-', ' ')}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`project-priority priority-${project.priority}`}>
-                        {project.priority.toUpperCase()}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ 
-                          flex: 1, 
-                          height: '6px', 
-                          backgroundColor: '#F5F5F5', 
-                          borderRadius: '3px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{ 
-                            width: `${project.completion}%`, 
-                            height: '100%', 
-                            backgroundColor: '#E3B76A',
-                            transition: 'width 0.3s ease'
-                          }} />
-                        </div>
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#B0B4B8', minWidth: '35px' }}>
-                          {project.completion}%
-                        </span>
-                      </div>
-                    </td>
-                    <td>{project.owner}</td>
-                  </tr>
-                ))}
-              </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+        {/* Dynamic Content */}
+        {activeTab === 'Overview' && renderOverview()}
+        
+        {/* Render Metrics Grid for other tabs */}
+        {(activeTab === 'Full Catalog' || activeTab === 'Strategy') && (
+            <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        
+        {/* Fallback to Grid if specific component not desired/used, or use existing + Grid */}
+        {activeTab === 'Growth' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Engagement' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Revenue' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Ops' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
 
       </div>
     </div>
