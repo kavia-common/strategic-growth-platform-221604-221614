@@ -4,40 +4,7 @@ import {
   BarChart, Bar, Legend, AreaChart, Area, PieChart, Pie, Cell
 } from 'recharts';
 import ChartCard from './ChartCard';
-
-const COLORS = {
-  primary: '#2563EB',
-  secondary: '#F59E0B',
-  success: '#10B981',
-  error: '#EF4444',
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  teal: '#14B8A6',
-  indigo: '#6366F1'
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload) return null;
-  return (
-    <div style={{
-      backgroundColor: 'white',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: '#111827' }}>{label}</p>
-      {payload.map((entry, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color }} />
-          <span style={{ fontSize: '14px', color: '#374151' }}>
-            {entry.name}: <strong>{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</strong>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
+import { CHART_COLORS, CustomTooltip } from './ChartTheme';
 
 const EnhancedEngagementSection = ({ data, timeRange }) => {
   // Generate rich sample data if not provided
@@ -54,10 +21,10 @@ const EnhancedEngagementSection = ({ data, timeRange }) => {
 
   // User segment engagement for pie chart
   const userSegments = [
-    { name: 'Power Users', value: 3200, color: COLORS.primary },
-    { name: 'Regular Users', value: 5800, color: COLORS.secondary },
-    { name: 'Casual Users', value: 2400, color: COLORS.success },
-    { name: 'New Users', value: 1600, color: COLORS.purple }
+    { name: 'Power Users', value: 3200, color: CHART_COLORS.primary },
+    { name: 'Regular Users', value: 5800, color: CHART_COLORS.secondary },
+    { name: 'Casual Users', value: 2400, color: CHART_COLORS.success },
+    { name: 'New Users', value: 1600, color: CHART_COLORS.purple }
   ];
 
   return (
@@ -68,21 +35,21 @@ const EnhancedEngagementSection = ({ data, timeRange }) => {
           <AreaChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorDAU" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8}/>
-                <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
+                <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
               </linearGradient>
               <linearGradient id="colorMAU" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS.secondary} stopOpacity={0.6}/>
-                <stop offset="95%" stopColor={COLORS.secondary} stopOpacity={0}/>
+                <stop offset="5%" stopColor={CHART_COLORS.secondary} stopOpacity={0.6}/>
+                <stop offset="95%" stopColor={CHART_COLORS.secondary} stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Area type="monotone" dataKey="dau" stroke={COLORS.primary} fill="url(#colorDAU)" strokeWidth={2} name="DAU" />
-            <Area type="monotone" dataKey="mau" stroke={COLORS.secondary} fill="url(#colorMAU)" strokeWidth={2} name="MAU" />
+            <Area type="monotone" dataKey="dau" stroke={CHART_COLORS.primary} fill="url(#colorDAU)" strokeWidth={2} name="DAU" />
+            <Area type="monotone" dataKey="mau" stroke={CHART_COLORS.secondary} fill="url(#colorMAU)" strokeWidth={2} name="MAU" />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -91,11 +58,11 @@ const EnhancedEngagementSection = ({ data, timeRange }) => {
       <ChartCard title="Session Duration Distribution" subtitle="How long users stay engaged">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sessionBuckets} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="range" stroke="#9CA3AF" fontSize={12} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="range" stroke={CHART_COLORS.gray} fontSize={12} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="count" fill={COLORS.success} radius={[8, 8, 0, 0]} name="Sessions" />
+            <Bar dataKey="count" fill={CHART_COLORS.success} radius={[8, 8, 0, 0]} name="Sessions" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -104,13 +71,13 @@ const EnhancedEngagementSection = ({ data, timeRange }) => {
       <ChartCard title="Retention & Feature Adoption" subtitle="7-day retention vs new feature usage">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} unit="%" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} unit="%" />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Line type="monotone" dataKey="retention_7d" stroke={COLORS.indigo} strokeWidth={3} name="7d Retention (%)" dot={{ r: 4 }} />
-            <Line type="monotone" dataKey="feature_adoption" stroke={COLORS.pink} strokeWidth={3} name="Feature Adoption (%)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="retention_7d" stroke={CHART_COLORS.indigo} strokeWidth={3} name="7d Retention (%)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="feature_adoption" stroke={CHART_COLORS.pink} strokeWidth={3} name="Feature Adoption (%)" dot={{ r: 4 }} />
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -128,7 +95,7 @@ const EnhancedEngagementSection = ({ data, timeRange }) => {
               paddingAngle={4}
               dataKey="value"
               label={({ name, percentage, value }) => `${name}: ${value.toLocaleString()}`}
-              labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
+              labelLine={{ stroke: CHART_COLORS.gray, strokeWidth: 1 }}
             >
               {userSegments.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

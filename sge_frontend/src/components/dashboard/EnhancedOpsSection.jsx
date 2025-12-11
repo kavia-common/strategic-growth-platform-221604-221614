@@ -4,40 +4,7 @@ import {
   BarChart, Bar, Legend, AreaChart, Area, ComposedChart
 } from 'recharts';
 import ChartCard from './ChartCard';
-
-const COLORS = {
-  primary: '#2563EB',
-  secondary: '#F59E0B',
-  success: '#10B981',
-  error: '#EF4444',
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  teal: '#14B8A6',
-  indigo: '#6366F1'
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload) return null;
-  return (
-    <div style={{
-      backgroundColor: 'white',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: '#111827' }}>{label}</p>
-      {payload.map((entry, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color }} />
-          <span style={{ fontSize: '14px', color: '#374151' }}>
-            {entry.name}: <strong>{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</strong>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
+import { CHART_COLORS, CustomTooltip, getHeatmapColor } from './ChartTheme';
 
 const EnhancedOpsSection = ({ data, timeRange }) => {
   const sampleData = data && data.length > 0 ? data : generateSampleOpsData(timeRange);
@@ -62,15 +29,15 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
           <AreaChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorUptime" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.8}/>
-                <stop offset="95%" stopColor={COLORS.success} stopOpacity={0.1}/>
+                <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0.1}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} domain={[99, 100]} unit="%" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} domain={[99, 100]} unit="%" />
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="uptime" stroke={COLORS.success} fill="url(#colorUptime)" strokeWidth={2} name="Uptime (%)" />
+            <Area type="monotone" dataKey="uptime" stroke={CHART_COLORS.success} fill="url(#colorUptime)" strokeWidth={2} name="Uptime (%)" />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -79,13 +46,13 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
       <ChartCard title="Incidents & Support Tickets" subtitle="Daily operational load">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Bar dataKey="tickets" fill={COLORS.secondary} radius={[4, 4, 0, 0]} name="Tickets" />
-            <Line type="monotone" dataKey="incidents" stroke={COLORS.error} strokeWidth={3} name="Incidents" dot={{ r: 4 }} />
+            <Bar dataKey="tickets" fill={CHART_COLORS.secondary} radius={[4, 4, 0, 0]} name="Tickets" />
+            <Line type="monotone" dataKey="incidents" stroke={CHART_COLORS.error} strokeWidth={3} name="Incidents" dot={{ r: 4 }} />
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -94,13 +61,13 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
       <ChartCard title="Response & Resolution Time" subtitle="Average time metrics (hours)">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Line type="monotone" dataKey="response_time" stroke={COLORS.indigo} strokeWidth={3} name="Response Time (hrs)" dot={{ r: 4 }} />
-            <Line type="monotone" dataKey="resolution_time" stroke={COLORS.purple} strokeWidth={3} name="Resolution Time (hrs)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="response_time" stroke={CHART_COLORS.indigo} strokeWidth={3} name="Response Time (hrs)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="resolution_time" stroke={CHART_COLORS.purple} strokeWidth={3} name="Resolution Time (hrs)" dot={{ r: 4 }} />
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -109,13 +76,13 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
       <ChartCard title="Tickets by Category" subtitle="Volume and resolution status">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={ticketCategories} margin={{ top: 10, right: 30, left: 0, bottom: 0 }} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-            <XAxis type="number" stroke="#9CA3AF" fontSize={12} />
-            <YAxis dataKey="category" type="category" stroke="#9CA3AF" fontSize={12} width={120} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} horizontal={false} />
+            <XAxis type="number" stroke={CHART_COLORS.gray} fontSize={12} />
+            <YAxis dataKey="category" type="category" stroke={CHART_COLORS.gray} fontSize={12} width={120} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Bar dataKey="count" fill={COLORS.secondary} radius={[0, 4, 4, 0]} name="Total" />
-            <Bar dataKey="resolved" fill={COLORS.success} radius={[0, 4, 4, 0]} name="Resolved" />
+            <Bar dataKey="count" fill={CHART_COLORS.secondary} radius={[0, 4, 4, 0]} name="Total" />
+            <Bar dataKey="resolved" fill={CHART_COLORS.success} radius={[0, 4, 4, 0]} name="Resolved" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -146,7 +113,7 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
                       borderRadius: '4px',
                       border: '1px solid #E5E7EB'
                     }}
-                    title={`${row.day} ${hourIdx * 4}:00 - Activity: ${intensity}`}
+                    title={`${row.day} ${hourIdx * 4}:00 - Activity: ${intensity.toFixed(2)}`}
                   />
                 ))}
               </div>
@@ -175,11 +142,11 @@ const EnhancedOpsSection = ({ data, timeRange }) => {
       <ChartCard title="Deployment Frequency" subtitle="Number of deployments per day">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="deployments" fill={COLORS.primary} radius={[8, 8, 0, 0]} name="Deployments" />
+            <Bar dataKey="deployments" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]} name="Deployments" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -217,18 +184,6 @@ function generateActivityHeatmap() {
     day,
     hours: Array.from({ length: 6 }, () => Math.random())
   }));
-}
-
-function getHeatmapColor(intensity) {
-  const colors = [
-    '#EFF6FF', // Very light blue
-    '#BFDBFE', // Light blue
-    '#60A5FA', // Medium blue
-    '#3B82F6', // Blue
-    '#2563EB'  // Dark blue (primary)
-  ];
-  const index = Math.floor(intensity * (colors.length - 1));
-  return colors[index];
 }
 
 export default EnhancedOpsSection;

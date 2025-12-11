@@ -4,50 +4,17 @@ import {
   BarChart, Bar, Legend, AreaChart, Area, PieChart, Pie, Cell, ComposedChart
 } from 'recharts';
 import ChartCard from './ChartCard';
-
-const COLORS = {
-  primary: '#2563EB',
-  secondary: '#F59E0B',
-  success: '#10B981',
-  error: '#EF4444',
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  teal: '#14B8A6',
-  indigo: '#6366F1'
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload) return null;
-  return (
-    <div style={{
-      backgroundColor: 'white',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: '#111827' }}>{label}</p>
-      {payload.map((entry, idx) => (
-        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color }} />
-          <span style={{ fontSize: '14px', color: '#374151' }}>
-            {entry.name}: <strong>{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</strong>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
+import { CHART_COLORS, CustomTooltip } from './ChartTheme';
 
 const EnhancedRevenueSection = ({ data, timeRange }) => {
   const sampleData = data && data.length > 0 ? data : generateSampleRevenueData(timeRange);
   
   // Plan mix for pie chart
   const planMix = [
-    { name: 'Enterprise', value: 125000, color: COLORS.primary },
-    { name: 'Professional', value: 85000, color: COLORS.secondary },
-    { name: 'Starter', value: 45000, color: COLORS.success },
-    { name: 'Free Trial', value: 5000, color: COLORS.purple }
+    { name: 'Enterprise', value: 125000, color: CHART_COLORS.primary },
+    { name: 'Professional', value: 85000, color: CHART_COLORS.secondary },
+    { name: 'Starter', value: 45000, color: CHART_COLORS.success },
+    { name: 'Free Trial', value: 5000, color: CHART_COLORS.purple }
   ];
 
   // Revenue by category for stacked bar
@@ -66,17 +33,17 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
           <ComposedChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorMRR" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8}/>
-                <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0.1}/>
+                <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0.1}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Area type="monotone" dataKey="mrr" stroke={COLORS.primary} fill="url(#colorMRR)" strokeWidth={2} name="MRR ($)" />
-            <Line type="monotone" dataKey="arr" stroke={COLORS.secondary} strokeWidth={3} strokeDasharray="5 5" name="ARR ($)" dot={{ r: 4 }} />
+            <Area type="monotone" dataKey="mrr" stroke={CHART_COLORS.primary} fill="url(#colorMRR)" strokeWidth={2} name="MRR ($)" />
+            <Line type="monotone" dataKey="arr" stroke={CHART_COLORS.secondary} strokeWidth={3} strokeDasharray="5 5" name="ARR ($)" dot={{ r: 4 }} />
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -94,7 +61,7 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
               paddingAngle={5}
               dataKey="value"
               label={({ name, value }) => `${name}: $${(value/1000).toFixed(0)}K`}
-              labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
+              labelLine={{ stroke: CHART_COLORS.gray, strokeWidth: 1 }}
             >
               {planMix.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -109,14 +76,14 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
       <ChartCard title="Revenue by Category" subtitle="New, renewal, and expansion breakdown">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={revenueCategories} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="category" stroke="#9CA3AF" fontSize={12} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="category" stroke={CHART_COLORS.gray} fontSize={12} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Bar dataKey="new" stackId="a" fill={COLORS.success} radius={[0, 0, 0, 0]} name="New ($)" />
-            <Bar dataKey="renewal" stackId="a" fill={COLORS.primary} radius={[0, 0, 0, 0]} name="Renewal ($)" />
-            <Bar dataKey="expansion" stackId="a" fill={COLORS.secondary} radius={[8, 8, 0, 0]} name="Expansion ($)" />
+            <Bar dataKey="new" stackId="a" fill={CHART_COLORS.success} radius={[0, 0, 0, 0]} name="New ($)" />
+            <Bar dataKey="renewal" stackId="a" fill={CHART_COLORS.primary} radius={[0, 0, 0, 0]} name="Renewal ($)" />
+            <Bar dataKey="expansion" stackId="a" fill={CHART_COLORS.secondary} radius={[8, 8, 0, 0]} name="Expansion ($)" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -125,13 +92,13 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
       <ChartCard title="ARPU & Customer Metrics" subtitle="Average revenue per user and lifetime value">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Line type="monotone" dataKey="arpu" stroke={COLORS.purple} strokeWidth={3} name="ARPU ($)" dot={{ r: 4 }} />
-            <Line type="monotone" dataKey="ltv" stroke={COLORS.pink} strokeWidth={3} name="LTV ($)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="arpu" stroke={CHART_COLORS.purple} strokeWidth={3} name="ARPU ($)" dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="ltv" stroke={CHART_COLORS.pink} strokeWidth={3} name="LTV ($)" dot={{ r: 4 }} />
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -142,17 +109,17 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
           <AreaChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorNRR" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.8}/>
-                <stop offset="95%" stopColor={COLORS.success} stopOpacity={0.1}/>
+                <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0.1}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} unit="%" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} unit="%" />
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
-            <Area type="monotone" dataKey="nrr" stroke={COLORS.success} fill="url(#colorNRR)" strokeWidth={2} name="NRR (%)" />
-            <Line type="monotone" dataKey="churn" stroke={COLORS.error} strokeWidth={2} name="Churn Rate (%)" dot={{ r: 4 }} />
+            <Area type="monotone" dataKey="nrr" stroke={CHART_COLORS.success} fill="url(#colorNRR)" strokeWidth={2} name="NRR (%)" />
+            <Line type="monotone" dataKey="churn" stroke={CHART_COLORS.error} strokeWidth={2} name="Churn Rate (%)" dot={{ r: 4 }} />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -161,11 +128,11 @@ const EnhancedRevenueSection = ({ data, timeRange }) => {
       <ChartCard title="Gross Margin" subtitle="Profitability over time">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sampleData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} tickFormatter={(str) => str.substring(5)} />
-            <YAxis stroke="#9CA3AF" fontSize={12} unit="%" domain={[60, 90]} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.gray} fontSize={12} tickFormatter={(str) => str.substring(5)} />
+            <YAxis stroke={CHART_COLORS.gray} fontSize={12} unit="%" domain={[60, 90]} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="gross_margin" fill={COLORS.teal} radius={[8, 8, 0, 0]} name="Gross Margin (%)" />
+            <Bar dataKey="gross_margin" fill={CHART_COLORS.teal} radius={[8, 8, 0, 0]} name="Gross Margin (%)" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
