@@ -1,9 +1,10 @@
 import React from 'react';
+import '../../styles/TopFilterBar.css';
 
 /**
  * TopFilterBar Component
  * Centered horizontal filter bar for switching data views, datasets, and time ranges.
- * Styled according to Ocean Professional theme.
+ * Styled using Foundatia brand tokens.
  */
 const TopFilterBar = ({ 
   timeRange, 
@@ -36,61 +37,18 @@ const TopFilterBar = ({
     { value: 'demo', label: 'Demo Data' }
   ];
 
-  // Helper for button styles
-  const getButtonStyle = (isActive, activeColor) => ({
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    backgroundColor: isActive ? activeColor : 'transparent',
-    color: isActive ? '#ffffff' : '#6B7280',
-    boxShadow: isActive ? `0 2px 4px ${activeColor}33` : 'none',
-    whiteSpace: 'nowrap'
-  });
-
-  const labelStyle = {
-    fontSize: '12px', 
-    fontWeight: 600, 
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em'
-  };
-
-  const groupContainerStyle = {
-    display: 'flex',
-    backgroundColor: '#F3F4F6',
-    borderRadius: '10px',
-    padding: '4px',
-    gap: '4px'
-  };
-
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: '32px',
-      padding: '24px',
-      marginBottom: '32px',
-      backgroundColor: '#ffffff',
-      borderRadius: '16px',
-      border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      flexWrap: 'wrap'
-    }}>
+    <div className="top-filter-bar">
       
       {/* Data View Selector (Primary Navigation) */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <label style={labelStyle}>View</label>
-        <div style={groupContainerStyle}>
+      <div className="filter-section">
+        <label className="filter-label">View</label>
+        <div className="filter-group">
           {dataViewOptions.map(option => (
             <button
               key={option.value}
               onClick={() => onDataViewChange(option.value)}
-              style={getButtonStyle(dataView === option.value, '#2563EB')} // Ocean Primary
+              className={`filter-button ${dataView === option.value ? 'active' : ''}`}
             >
               {option.label}
             </button>
@@ -99,17 +57,17 @@ const TopFilterBar = ({
       </div>
 
       {/* Vertical Divider */}
-      <div style={{ width: '1px', height: '48px', backgroundColor: '#E5E7EB', display: 'none', '@media (min-width: 768px)': { display: 'block' } }} />
+      <div className="filter-divider" />
 
       {/* Dataset Selector */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <label style={labelStyle}>Dataset</label>
-        <div style={groupContainerStyle}>
+      <div className="filter-section">
+        <label className="filter-label">Dataset</label>
+        <div className="filter-group">
           {datasetOptions.map(option => (
             <button
               key={option.value}
               onClick={() => onDatasetChange && onDatasetChange(option.value)}
-              style={getButtonStyle(dataset === option.value, '#F59E0B')} // Ocean Secondary
+              className={`filter-button ${dataset === option.value ? 'active' : ''}`}
             >
               {option.label}
             </button>
@@ -118,17 +76,17 @@ const TopFilterBar = ({
       </div>
 
       {/* Vertical Divider */}
-      <div style={{ width: '1px', height: '48px', backgroundColor: '#E5E7EB', display: 'none', '@media (min-width: 768px)': { display: 'block' } }} />
+      <div className="filter-divider" />
 
       {/* Time Range Selector */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <label style={labelStyle}>Time Range</label>
-        <div style={groupContainerStyle}>
+      <div className="filter-section">
+        <label className="filter-label">Time Range</label>
+        <div className="filter-group">
           {timeRangeOptions.map(option => (
             <button
               key={option.value}
               onClick={() => onTimeRangeChange(option.value)}
-              style={getButtonStyle(timeRange === option.value, '#2563EB')} // Ocean Primary (Consistent with View)
+              className={`filter-button ${timeRange === option.value ? 'active' : ''}`}
             >
               {option.label}
             </button>

@@ -1,0 +1,81 @@
+/* TopFilterBar.css - Foundatia Theme */
+
+.top-filter-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+  margin-bottom: 32px;
+  background-color: var(--foundatia-off-white);
+  border-radius: 16px;
+  border: 1px solid var(--foundatia-grey-light); /* Muted border */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foundatia-grey-dark); /* Muted text */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-group {
+  display: flex;
+  background-color: transparent;
+  border: 1px solid var(--foundatia-grey-light); /* Pill/segmented border */
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  color: var(--foundatia-charcoal); /* Text */
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background-color: var(--foundatia-gold-hover); /* Hover */
+  color: var(--foundatia-charcoal-dark);
+}
+
+.filter-button.active {
+  background-color: var(--foundatia-warm-gold); /* Active pill background */
+  color: var(--foundatia-charcoal-dark); /* Active pill text */
+  box-shadow: 0 2px 4px rgba(227, 183, 106, 0.33);
+}
+
+.filter-button:focus-visible {
+  outline: 2px solid var(--foundatia-gold-light); /* Focus ring */
+  outline-offset: 2px;
+}
+
+.filter-divider {
+  width: 1px;
+  height: 48px;
+  background-color: rgba(28, 28, 28, 0.06); /* Subtle divider */
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .filter-divider {
+    display: block;
+  }
+}
