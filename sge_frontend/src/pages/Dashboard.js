@@ -12,10 +12,12 @@ import {
 import { useAuth } from '../context/AuthContext';
 import '../styles/Dashboard.css';
 import { fetchDashboardMetrics } from '../services/dataService';
+import { fetchAllMetrics } from '../services/metricsService';
 import GrowthSection from '../components/dashboard/GrowthSection';
 import EngagementSection from '../components/dashboard/EngagementSection';
 import RevenueSection from '../components/dashboard/RevenueSection';
 import OpsSection from '../components/dashboard/OpsSection';
+import MetricsGrid from '../components/dashboard/MetricsGrid';
 
 // ============================================
 // COMPONENTS
@@ -59,11 +61,16 @@ const Dashboard = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [opsData, setOpsData] = useState([]);
   const [segmentsData, setSegmentsData] = useState([]);
+  
+  // CSV Metrics State
+  const [csvMetrics, setCsvMetrics] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filters
   const [dateRange, setDateRange] = useState('12m');
   const [segment, setSegment] = useState('all');
   const [planTier, setPlanTier] = useState('all');
+  const [region, setRegion] = useState('all');
 
   // Load Data
   useEffect(() => {
@@ -71,12 +78,18 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
       try {
+        // Load API mock data
         const metrics = await fetchDashboardMetrics();
         setGrowthData(metrics.growth || []);
         setEngagementData(metrics.engagement || []);
         setRevenueData(metrics.revenue || []);
         setOpsData(metrics.ops || []);
         setSegmentsData(metrics.segments || []);
+        
+        // Load CSV Metrics
+        const allCsv = await fetchAllMetrics();
+        setCsvMetrics(allCsv);
+        
       } catch (err) {
         console.error("Error loading dashboard data:", err);
         setError("Failed to load dashboard metrics. Please check your network connection.");
@@ -100,6 +113,31 @@ const Dashboard = () => {
   const filteredEngagement = useMemo(() => filterDataByDate(engagementData), [engagementData, dateRange]);
   const filteredRevenue = useMemo(() => filterDataByDate(revenueData), [revenueData, dateRange]);
   const filteredOps = useMemo(() => filterDataByDate(opsData), [opsData, dateRange]);
+
+  // Filter CSV Metrics
+  const filteredCsvMetrics = useMemo(() => {
+    let result = csvMetrics;
+    
+    // Filter by Tab/Category if not Overview or Full Catalog
+    if (activeTab !== 'Overview' && activeTab !== 'Full Catalog') {
+        result = result.filter(m => {
+            const d = (m.domain || '').toLowerCase();
+            const tab = activeTab.toLowerCase();
+            return d.includes(tab);
+        });
+    }
+
+    // Filter by Search
+    if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        result = result.filter(m => 
+            m.name.toLowerCase().includes(q) || 
+            (m.description && m.description.toLowerCase().includes(q))
+        );
+    }
+
+    return result;
+  }, [csvMetrics, activeTab, searchQuery]);
 
   // Executive Metrics derived from latest data points
   const latestRevenue = filteredRevenue.length > 0 ? filteredRevenue[filteredRevenue.length - 1] : {};
@@ -275,7 +313,7 @@ const Dashboard = () => {
           
           {/* Tabs */}
           <div className="tabs-container">
-            {['Overview', 'Growth', 'Engagement', 'Revenue', 'Ops'].map(tab => (
+            {['Overview', 'Full Catalog', 'Growth', 'Engagement', 'Revenue', 'Ops', 'Strategy'].map(tab => (
               <button 
                 key={tab} 
                 className={`tab-button ${activeTab === tab ? 'active' : ''}`}
@@ -287,7 +325,23 @@ const Dashboard = () => {
           </div>
 
           {/* Filters */}
-          <div className="filters-bar">
+          <div className="filters-bar" style={{ flexWrap: 'wrap', gap: '10px' }}>
+            
+            {/* Search Box */}
+            <input 
+                type="text" 
+                placeholder="Search metrics..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #D1D5DB',
+                    fontSize: '14px',
+                    minWidth: '200px'
+                }}
+            />
+
             <select className="filter-select" value={dateRange} onChange={e => setDateRange(e.target.value)}>
               <option value="1m">Last 30 Days</option>
               <option value="3m">Last 3 Months</option>
@@ -300,6 +354,9 @@ const Dashboard = () => {
               {segmentsData && [...new Set(segmentsData.map(s => s.segment))].map(seg => (
                  <option key={seg} value={seg}>{seg}</option>
               ))}
+              <option value="Enterprise">Enterprise</option>
+              <option value="Mid-Market">Mid-Market</option>
+              <option value="SMB">SMB</option>
             </select>
 
             <select className="filter-select" value={planTier} onChange={e => setPlanTier(e.target.value)}>
@@ -307,16 +364,41 @@ const Dashboard = () => {
                {segmentsData && [...new Set(segmentsData.map(s => s.plan))].map(plan => (
                  <option key={plan} value={plan}>{plan}</option>
               ))}
+              <option value="Basic">Basic</option>
+              <option value="Pro">Pro</option>
+              <option value="Enterprise">Enterprise</option>
+            </select>
+            
+             <select className="filter-select" value={region} onChange={e => setRegion(e.target.value)}>
+              <option value="all">All Regions</option>
+              <option value="North America">North America</option>
+              <option value="EMEA">EMEA</option>
+              <option value="APAC">APAC</option>
             </select>
           </div>
         </section>
 
         {/* Dynamic Content */}
         {activeTab === 'Overview' && renderOverview()}
-        {activeTab === 'Growth' && <GrowthSection data={filteredGrowth} />}
-        {activeTab === 'Engagement' && <EngagementSection data={filteredEngagement} />}
-        {activeTab === 'Revenue' && <RevenueSection data={filteredRevenue} />}
-        {activeTab === 'Ops' && <OpsSection data={filteredOps} />}
+        
+        {/* Render Metrics Grid for other tabs */}
+        {(activeTab === 'Full Catalog' || activeTab === 'Strategy') && (
+            <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        
+        {/* Fallback to Grid if specific component not desired/used, or use existing + Grid */}
+        {activeTab === 'Growth' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Engagement' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Revenue' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
+        {activeTab === 'Ops' && (
+             <MetricsGrid metrics={filteredCsvMetrics} filters={{ segment, plan: planTier, region }} />
+        )}
 
       </div>
     </div>
