@@ -26,6 +26,7 @@
 .chat-history-header {
   padding: var(--spacing-lg);
   border-bottom: 1px solid var(--border-default);
+  position: relative;
 }
 
 .chat-new-conversation-btn {
@@ -577,32 +578,146 @@
    RESPONSIVE
    ========================================== */
 
-@media (max-width: 768px) {
+/* Small/medium screens: hide history by default under 950px, add overlay/drawer behavior,
+   and make input actions responsive to prevent overlap. */
+@media (max-width: 950px) {
+  .chat-page {
+    position: relative;
+  }
+
+  /* Top mini header inside Chat page for small screens */
+  .chat-topbar-sm {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--border-default);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+  }
+
+  .chat-history-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: var(--font-sm);
+    color: var(--text-primary);
+    background: #fff;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .chat-history-toggle:hover {
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Sidebar drawer behavior */
   .chat-history-sidebar {
-    position: absolute;
+    position: fixed;
     left: -320px;
-    height: 100%;
+    top: 64px; /* below main app topbar */
+    height: calc(100vh - 64px);
     z-index: var(--z-modal);
     box-shadow: var(--shadow-xl);
+    transition: left var(--transition-smooth);
   }
-  
+
   .chat-history-sidebar.mobile-open {
     left: 0;
   }
-  
-  .chat-message-content {
-    max-width: 85%;
+
+  .chat-history-header {
+    position: relative;
   }
-  
+
+  .chat-history-close-sm {
+    position: absolute;
+    right: var(--spacing-md);
+    top: var(--spacing-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    background: #fff;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  /* Overlay behind the drawer */
+  .chat-history-overlay {
+    position: fixed;
+    inset: 64px 0 0 0; /* below main app topbar */
+    background: rgba(28, 28, 28, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-slow);
+    z-index: var(--z-modal-backdrop);
+  }
+
+  .chat-history-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Messages padding tightened */
   .chat-messages-container {
     padding: var(--spacing-md);
   }
-  
+
+  .chat-message-content {
+    max-width: 85%;
+  }
+
   .chat-input-area {
     padding: var(--spacing-md);
   }
-  
+
+  /* Input wrapper: allow wrapping so actions move next line if needed */
+  .chat-input-wrapper {
+    flex-wrap: wrap;
+    padding-right: var(--spacing-sm);
+  }
+
+  .chat-input {
+    min-width: 0;
+    flex: 1 1 220px; /* grow and shrink with a reasonable basis */
+  }
+
+  .chat-input-actions {
+    flex: 0 0 auto;
+    padding: var(--spacing-sm);
+    gap: 8px;
+  }
+
+  /* Slightly reduce icon sizes for compactness (inherited via button size) */
+  .chat-mic-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .chat-send-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Always show rename button in compact list for easier taps */
   .chat-history-rename-btn {
     opacity: 1;
+  }
+}
+
+/* Previous mobile-only rules at 768px remain but are superseded by the more general 950px where applicable */
+@media (max-width: 768px) {
+  .chat-message-content {
+    max-width: 85%;
   }
 }

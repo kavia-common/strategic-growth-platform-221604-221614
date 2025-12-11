@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Plus, MessageSquare, Bot, User, Mic, Edit2, Check, X } from 'lucide-react';
+import { Send, Plus, MessageSquare, Bot, User, Mic, Edit2, Check, X, History, X as CloseIcon } from 'lucide-react';
 import '../styles/Chat.css';
 import {
   getConversations,
@@ -30,6 +30,11 @@ const Chat = () => {
   const editInputRef = useRef(null);
   const justCreatedConversationId = useRef(null);
   const activeConversationIdRef = useRef(activeConversationId);
+
+  // Small-screen history drawer state
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const historyButtonRef = useRef(null);
+  const historyDrawerRef = useRef(null);
 
   // Keep ref in sync with state for use in callbacks
   useEffect(() => {
@@ -62,6 +67,20 @@ const Chat = () => {
       editInputRef.current.select();
     }
   }, [editingConversationId]);
+
+  // Close history drawer with Escape on small screens
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape' && isHistoryOpen) {
+        e.preventDefault();
+        setIsHistoryOpen(false);
+        // return focus for a11y
+        if (historyButtonRef.current) historyButtonRef.current.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isHistoryOpen]);
 
   // Simple toast helper
   const showError = (msg) => {
@@ -325,6 +344,7 @@ const Chat = () => {
     setConversations((prev) => [placeholder, ...prev]);
     setActiveConversationId(tempId);
     setMessages([]);
+    setIsHistoryOpen(false);
 
     try {
       const created = await createConversationApi('New Conversation');
@@ -356,6 +376,26 @@ const Chat = () => {
 
   return (
     <div className="chat-page">
+      {/* Overlay for small screens to close history drawer */}
+      <div
+        className={`chat-history-overlay ${isHistoryOpen ? 'visible' : ''}`}
+        role="button"
+        tabIndex={isHistoryOpen ? 0 : -1}
+        aria-hidden={!isHistoryOpen}
+        aria-label="Close history"
+        onClick={() => {
+          setIsHistoryOpen(false);
+          if (historyButtonRef.current) historyButtonRef.current.focus();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsHistoryOpen(false);
+            if (historyButtonRef.current) historyButtonRef.current.focus();
+          }
+        }}
+      />
+
       {/* Toast Notification */}
       {error && (
         <div
@@ -378,11 +418,29 @@ const Chat = () => {
       )}
 
       {/* Left History Sidebar */}
-      <div className="chat-history-sidebar">
+      <div
+        id="chat-history-sidebar"
+        ref={historyDrawerRef}
+        className={`chat-history-sidebar ${isHistoryOpen ? 'mobile-open' : ''}`}
+        role="dialog"
+        aria-modal="false"
+        aria-label="Conversation history"
+      >
         <div className="chat-history-header">
           <button onClick={createNewChat} className="chat-new-conversation-btn">
             <Plus size={18} strokeWidth={2.5} />
             New Conversation
+          </button>
+          <button
+            type="button"
+            className="chat-history-close-sm"
+            aria-label="Close history"
+            onClick={() => {
+              setIsHistoryOpen(false);
+              if (historyButtonRef.current) historyButtonRef.current.focus();
+            }}
+          >
+            <CloseIcon size={16} />
           </button>
         </div>
 
@@ -427,7 +485,11 @@ const Chat = () => {
                 // Display mode
                 <>
                   <div
-                    onClick={() => setActiveConversationId(chat.id)}
+                    onClick={() => {
+                      setActiveConversationId(chat.id);
+                      // If in small screen, close history drawer after selection
+                      setIsHistoryOpen(false);
+                    }}
                     className="chat-history-clickable"
                   >
                     <div className="chat-history-icon">
@@ -460,6 +522,22 @@ const Chat = () => {
 
       {/* Right Conversation Area */}
       <div className="chat-conversation-area">
+        {/* Small-screen top bar for Chat page with History toggle */}
+        <div className="chat-topbar-sm">
+          <button
+            ref={historyButtonRef}
+            type="button"
+            className="chat-history-toggle"
+            aria-label="Toggle conversation history"
+            aria-haspopup="dialog"
+            aria-expanded={isHistoryOpen}
+            aria-controls="chat-history-sidebar"
+            onClick={() => setIsHistoryOpen((v) => !v)}
+          >
+            <History size={18} />
+            <span className="chat-history-toggle-text">History</span>
+          </button>
+        </div>
         <div className="chat-messages-container">
           <div className="chat-messages-inner">
             {messages.length === 0 && loading ? (
