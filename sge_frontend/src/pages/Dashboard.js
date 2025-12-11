@@ -102,18 +102,63 @@ const Dashboard = () => {
     loadData();
   }, []);
 
-  // Filter Logic (Simple client-side filtering example)
-  const filterDataByDate = (data) => {
+  // Filter & Process Data Logic
+  const filterAndProcessData = (data, range, datasetName) => {
     if (!data) return [];
-    // Simplistic filter: assuming mock data is recent. 
-    // In a real scenario, compare row.date with threshold.
-    return data; 
+    
+    // 1. Filter by Date
+    const now = new Date();
+    let cutoff = new Date();
+    
+    // Assuming data is recent relative to "now".
+    // In a real app with static historical data, "now" might need to be the latest date in the dataset.
+    // For this prototype, we'll use current date.
+    if (range === '7d') cutoff.setDate(now.getDate() - 7);
+    else if (range === '30d') cutoff.setDate(now.getDate() - 30);
+    else if (range === '90d') cutoff.setDate(now.getDate() - 90);
+    else if (range === 'ytd') cutoff = new Date(now.getFullYear(), 0, 1); // Jan 1st
+    else if (range === '12m') cutoff.setFullYear(now.getFullYear() - 1);
+    else cutoff.setDate(now.getDate() - 30); // Default
+
+    let processed = data.filter(item => {
+        if (!item.date) return true;
+        const itemDate = new Date(item.date);
+        return itemDate >= cutoff;
+    });
+
+    // 2. Adjust for Dataset (Simulation)
+    // If dataset is 'staging', scale down values to simulate a smaller environment.
+    // If 'demo', scale down further.
+    if (datasetName === 'staging') {
+        processed = processed.map(item => {
+            const newItem = { ...item };
+            Object.keys(newItem).forEach(key => {
+                // heuristic: scale numeric values that look like metrics
+                if (typeof newItem[key] === 'number') {
+                     newItem[key] = Math.floor(newItem[key] * 0.6); 
+                }
+            });
+            return newItem;
+        });
+    } else if (datasetName === 'demo') {
+        processed = processed.map(item => {
+             const newItem = { ...item };
+            Object.keys(newItem).forEach(key => {
+                if (typeof newItem[key] === 'number') {
+                     newItem[key] = Math.floor(newItem[key] * 0.3); 
+                }
+            });
+            return newItem;
+        });
+    }
+
+    return processed;
   };
 
-  const filteredGrowth = useMemo(() => filterDataByDate(growthData), [growthData, dateRange]);
-  const filteredEngagement = useMemo(() => filterDataByDate(engagementData), [engagementData, dateRange]);
-  const filteredRevenue = useMemo(() => filterDataByDate(revenueData), [revenueData, dateRange]);
-  const filteredOps = useMemo(() => filterDataByDate(opsData), [opsData, dateRange]);
+  const filteredGrowth = useMemo(() => filterAndProcessData(growthData, dateRange, dataset), [growthData, dateRange, dataset]);
+  const filteredEngagement = useMemo(() => filterAndProcessData(engagementData, dateRange, dataset), [engagementData, dateRange, dataset]);
+  const filteredRevenue = useMemo(() => filterAndProcessData(revenueData, dateRange, dataset), [revenueData, dateRange, dataset]);
+  const filteredOps = useMemo(() => filterAndProcessData(opsData, dateRange, dataset), [opsData, dateRange, dataset]);
 
   // Filter CSV Metrics
   const filteredCsvMetrics = useMemo(() => {
@@ -377,17 +422,17 @@ const Dashboard = () => {
         
         {/* Engagement Tab */}
         {activeTab === 'Engagement' && (
-             <EnhancedEngagementSection data={filteredEngagement} timeRange={dateRange} />
+             <EnhancedEngagementSection data={filteredEngagement} timeRange={dateRange} dataset={dataset} />
         )}
 
         {/* Revenue Tab */}
         {activeTab === 'Revenue' && (
-             <EnhancedRevenueSection data={filteredRevenue} timeRange={dateRange} />
+             <EnhancedRevenueSection data={filteredRevenue} timeRange={dateRange} dataset={dataset} />
         )}
 
         {/* Ops Tab */}
         {activeTab === 'Ops' && (
-             <EnhancedOpsSection data={filteredOps} timeRange={dateRange} />
+             <EnhancedOpsSection data={filteredOps} timeRange={dateRange} dataset={dataset} />
         )}
 
         {/* Render Metrics Grid for other tabs */}

@@ -6,7 +6,7 @@ import {
 import ChartCard from './ChartCard';
 import { CHART_COLORS, CustomTooltip } from './ChartTheme';
 
-const EnhancedEngagementSection = ({ data, timeRange }) => {
+const EnhancedEngagementSection = ({ data, timeRange, dataset }) => {
   // Generate rich sample data if not provided
   const sampleData = data && data.length > 0 ? data : generateSampleEngagementData(timeRange);
   

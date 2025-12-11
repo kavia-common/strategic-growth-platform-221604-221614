@@ -6,7 +6,7 @@ import {
 import ChartCard from './ChartCard';
 import { CHART_COLORS, CustomTooltip } from './ChartTheme';
 
-const EnhancedRevenueSection = ({ data, timeRange }) => {
+const EnhancedRevenueSection = ({ data, timeRange, dataset }) => {
   const sampleData = data && data.length > 0 ? data : generateSampleRevenueData(timeRange);
   
   // Plan mix for pie chart

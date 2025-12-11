@@ -6,7 +6,7 @@ import {
 import ChartCard from './ChartCard';
 import { CHART_COLORS, CustomTooltip, getHeatmapColor } from './ChartTheme';
 
-const EnhancedOpsSection = ({ data, timeRange }) => {
+const EnhancedOpsSection = ({ data, timeRange, dataset }) => {
   const sampleData = data && data.length > 0 ? data : generateSampleOpsData(timeRange);
   
   // Ticket categories for bar chart
