@@ -567,6 +567,86 @@
 }
 
 /* ==========================================
+   FILTERS & TABS
+   ========================================== */
+
+.dashboard-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 768px) {
+  .dashboard-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.filter-select {
+  padding: 8px var(--spacing-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  min-width: 140px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.filter-select:hover {
+  border-color: var(--border-subtle);
+}
+
+.filter-select:focus {
+  outline: 2px solid rgba(227, 183, 106, 0.3);
+  border-color: var(--foundatia-warm-gold);
+}
+
+.tabs-container {
+  display: flex;
+  background-color: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.tab-button {
+  padding: 8px var(--spacing-lg);
+  border: none;
+  background: none;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  color: var(--foundatia-cool-grey);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.tab-button:hover {
+  color: var(--text-primary);
+  background-color: rgba(0,0,0,0.02);
+}
+
+.tab-button.active {
+  background-color: var(--foundatia-warm-gold);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================
    RESPONSIVE ADJUSTMENTS
    ========================================== */
 
@@ -611,5 +691,15 @@
   .projects-table th,
   .projects-table td {
     padding: var(--spacing-sm);
+  }
+  
+  .dashboard-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filters-bar {
+    overflow-x: auto;
+    padding-bottom: 4px;
   }
 }
