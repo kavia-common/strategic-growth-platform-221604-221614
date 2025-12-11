@@ -68,6 +68,7 @@ const Dashboard = () => {
 
   // Filters
   const [dateRange, setDateRange] = useState('30d');
+  const [dataset, setDataset] = useState('production');
   const [segment, setSegment] = useState('all');
   const [planTier, setPlanTier] = useState('all');
   const [region, setRegion] = useState('all');
@@ -238,15 +239,15 @@ const Dashboard = () => {
                 <AreaChart data={filteredRevenue}>
                   <defs>
                     <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#E3B76A" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#E3B76A" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#F59E0B" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#D4D6D9" />
                   <XAxis dataKey="date" stroke="#B0B4B8" fontSize={12} tickFormatter={(str) => str.substring(5, 7) + '/' + str.substring(2, 4)} />
                   <YAxis stroke="#B0B4B8" fontSize={12} />
                   <Tooltip />
-                  <Area type="monotone" dataKey="mrr" stroke="#E3B76A" fillOpacity={1} fill="url(#colorRev)" name="MRR" />
+                  <Area type="monotone" dataKey="mrr" stroke="#F59E0B" fillOpacity={1} fill="url(#colorRev)" name="MRR" />
                   <Line type="monotone" dataKey="arr" stroke="#2563EB" strokeDasharray="5 5" name="ARR (Scaled)" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -310,7 +311,7 @@ const Dashboard = () => {
             <div>
                <h2 className="dashboard-section-title">Dashboard</h2>
                <p className="dashboard-section-subtitle">
-                 Welcome back, {user?.email} &bull; <span style={{ color: '#E3B76A' }}>{orgName}</span>
+                 Welcome back, {user?.email} &bull; <span style={{ color: '#F59E0B', fontWeight: 600 }}>{orgName}</span>
                </p>
             </div>
           </div>
@@ -320,6 +321,8 @@ const Dashboard = () => {
              onTimeRangeChange={setDateRange}
              dataView={activeTab}
              onDataViewChange={setActiveTab}
+             dataset={dataset}
+             onDatasetChange={setDataset}
           />
           
           {/* Secondary Filters (Segment, Plan, Region) */}
