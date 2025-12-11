@@ -129,12 +129,30 @@ const Dashboard = () => {
            metrics = {}; 
         }
 
-        const useDefaults = !metrics.growth || metrics.growth.length === 0;
+        // Check if fetched data is valid and fresh (has data within last 30 days)
+        const isDataFresh = (data) => {
+          if (!data || data.length === 0) return false;
+          
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          // Check if any data point is recent
+          return data.some(item => {
+              if (!item.date) return false;
+              return new Date(item.date) > thirtyDaysAgo;
+          });
+        };
+
+        const useDefaults = !metrics.growth || metrics.growth.length === 0 || !isDataFresh(metrics.growth);
+        
+        if (useDefaults && metrics.growth && metrics.growth.length > 0) {
+           console.warn("Fetched metrics are stale or empty. Falling back to generated mock data.");
+        }
         
         setGrowthData(useDefaults ? DEFAULT_METRICS.growth : metrics.growth);
         setEngagementData(useDefaults ? DEFAULT_METRICS.engagement : metrics.engagement);
         setRevenueData(useDefaults ? DEFAULT_METRICS.revenue : metrics.revenue);
-        setOpsData(metrics.ops || []); 
+        setOpsData(useDefaults ? DEFAULT_METRICS.ops : (metrics.ops || [])); 
         setSegmentsData(metrics.segments || []);
         
         // Load CSV Metrics
